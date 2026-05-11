@@ -1098,6 +1098,186 @@ const defaultPlaces = [
   {id:2,  name:'Часовня Параскевы Пятницы',       cat:'Храмы',       addr:'Покровская гора (ул. Степана Разина)',  desc:'Символ Красноярска, изображённый на 10-рублёвой банкноте. Часовня стоит на Покровской горе и видна из многих точек города.',                                                                              rating:4.7, lat:56.0186, lng:92.8660, img:'https://images.unsplash.com/photo-1548438294-1ad5d5f4f063?w=600&q=80', hidden:false},
   // Храм Преображения Господня / Костёл: ул. Декабристов 20
   {id:14, name:'Храм Преображения Господня',       cat:'Храмы',       addr:'ул. Декабристов, 20',                  desc:'Бывший римско-католический костёл, ныне — концертный зал филармонии. Величественное здание в псевдоготическом стиле с красным кирпичом.',                                                                    rating:4.8, lat:56.0181, lng:92.8529, img:'https://images.unsplash.com/photo-1548438294-1ad5d5f4f063?w=600&q=80', hidden:false},
+   {id:21, name:'Музейный центр «Площадь Мира»', cat:'Музеи', addr:'пл. Мира, 1, Красноярск', desc:'Крупнейший центр современного искусства в Сибири. Выставки, инсталляции, фестивали и образовательные программы.', rating:4.7, lat:56.0101, lng:92.8722, img:'https://images.unsplash.com/photo-1554907984-15263bfd63bd?w=600&q=80', hidden:false},
+
+  {id:22, name:'Красноярская филармония', cat:'Развлечения', addr:'пл. Мира, 2Б, Красноярск', desc:'Главная концертная площадка города. Симфонические концерты, гастрольные программы и фестивали.', rating:4.8, lat:56.0099, lng:92.8733, img:'https://images.unsplash.com/photo-1507924538820-ede94a04019d?w=600&q=80', hidden:false},
+
+  {id:23, name:'Красноярский драмтеатр им. Пушкина', cat:'Развлечения', addr:'пр. Мира, 73, Красноярск', desc:'Один из старейших театров Сибири.', rating:4.8, lat:56.0159, lng:92.8577, img:'https://images.unsplash.com/photo-1503095396549-807759245b35?w=600&q=80', hidden:false},
+
+  {id:24, name:'ТЮЗ Красноярск', cat:'Развлечения', addr:'ул. Академика Вавилова, 25, Красноярск', desc:'Театр юного зрителя с яркими постановками.', rating:4.7, lat:55.9948, lng:92.9122, img:'https://images.unsplash.com/photo-1507924538820-ede94a04019d?w=600&q=80', hidden:false},
+
+  {id:25, name:'Парк Горького', cat:'Природа', addr:'ул. Карла Маркса, 151, Красноярск', desc:'Центральный городской парк.', rating:4.6, lat:56.0165, lng:92.8468, img:'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80', hidden:false},
+
+  {id:26, name:'Центральная набережная', cat:'Природа', addr:'ул. Дубровинского, Красноярск', desc:'Популярное место прогулок вдоль Енисея.', rating:4.8, lat:56.0058, lng:92.8488, img:'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80', hidden:false},
+
+  {id:27, name:'Ярыгинская набережная', cat:'Природа', addr:'ул. Судостроительная, Красноярск', desc:'Современная благоустроенная набережная.', rating:4.7, lat:55.9844, lng:92.8785, img:'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80', hidden:false},
+
+  {id:28, name:'Эко-парк «Гремячая грива»', cat:'Природа', addr:'ул. Биатлонная, Красноярск', desc:'Экологический парк с лесными тропами.', rating:4.8, lat:56.0271, lng:92.7889, img:'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80', hidden:false},
+
+  {id:29, name:'Николаевская сопка', cat:'Природа', addr:'Николаевская сопка, Красноярск', desc:'Панорамный вид на город.', rating:4.8, lat:56.0246, lng:92.7992, img:'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80', hidden:false},
+
+  {id:30, name:'Смотровая площадка «Царь-рыба»', cat:'Природа', addr:'Слизнево, трасса Р257', desc:'Знаменитая смотровая площадка над Енисеем.', rating:4.9, lat:55.9384, lng:92.5968, img:'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80', hidden:false},
+
+  {id:31, name:'Покровский кафедральный собор', cat:'Храмы', addr:'ул. Сурикова, 26, Красноярск', desc:'Главный православный храм города.', rating:4.8, lat:56.0188, lng:92.8608, img:'https://images.unsplash.com/photo-1548438294-1ad5d5f4f063?w=600&q=80', hidden:false},
+
+  {id:32, name:'Свято-Успенский монастырь', cat:'Храмы', addr:'ул. Лесная, 55А, Красноярск', desc:'Монастырский комплекс на берегу Енисея.', rating:4.8, lat:55.9991, lng:92.7602, img:'https://images.unsplash.com/photo-1548438294-1ad5d5f4f063?w=600&q=80', hidden:false},
+
+  {id:33, name:'ТРЦ «Планета»', cat:'Развлечения', addr:'ул. 9 Мая, 77, Красноярск', desc:'Крупнейший торгово-развлекательный центр.', rating:4.7, lat:56.0511, lng:92.9113, img:'https://images.unsplash.com/photo-1519567241046-7f570eee3ce6?w=600&q=80', hidden:false},
+
+  {id:34, name:'Дом кино', cat:'Развлечения', addr:'пр. Мира, 88, Красноярск', desc:'Место для любителей авторского кино.', rating:4.6, lat:56.0172, lng:92.8544, img:'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600&q=80', hidden:false},
+
+  {id:35, name:'Кинотеатр «Луч»', cat:'Развлечения', addr:'ул. Карла Маркса, 149, Красноярск', desc:'Популярный кинотеатр.', rating:4.5, lat:56.0158, lng:92.8479, img:'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600&q=80', hidden:false},
+
+  {id:36, name:'Платинум Арена', cat:'Развлечения', addr:'ул. Лесников, 21, Красноярск', desc:'Современная ледовая арена.', rating:4.8, lat:55.9754, lng:92.8917, img:'https://images.unsplash.com/photo-1547347298-4074fc3086f0?w=600&q=80', hidden:false},
+
+  {id:37, name:'Арена Север', cat:'Развлечения', addr:'ул. 9 Мая, 74, Красноярск', desc:'Спортивный комплекс.', rating:4.7, lat:56.0495, lng:92.9094, img:'https://images.unsplash.com/photo-1547347298-4074fc3086f0?w=600&q=80', hidden:false},
+
+  {id:38, name:'Центральный стадион', cat:'Развлечения', addr:'остров Отдыха, 15А, Красноярск', desc:'Главный стадион города.', rating:4.5, lat:55.9962, lng:92.8907, img:'https://images.unsplash.com/photo-1547347298-4074fc3086f0?w=600&q=80', hidden:false},
+
+  {id:39, name:'Отель Hilton Garden Inn', cat:'Отели', addr:'ул. Молокова, 37, Красноярск', desc:'Современный бизнес-отель.', rating:4.7, lat:56.0432, lng:92.9051, img:'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80', hidden:false},
+
+  {id:40, name:'Ресторан «Хозяин тайги»', cat:'Рестораны', addr:'ул. Ленина, 121, Красноярск', desc:'Известный ресторан сибирской кухни.', rating:4.8, lat:56.0228, lng:92.8474, img:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80', hidden:false},
+
+  {id:41, name:'Ресторан «Булгаков»', cat:'Рестораны', addr:'ул. Сурикова, 12, Красноярск', desc:'Популярный гастрономический ресторан.', rating:4.7, lat:56.0168, lng:92.8615, img:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80', hidden:false},
+
+  {id:42, name:'Traveler’s Coffee', cat:'Рестораны', addr:'пр. Мира, 54, Красноярск', desc:'Популярная кофейня.', rating:4.5, lat:56.0135, lng:92.8618, img:'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80', hidden:false},
+
+  {id:43, name:'Сады мечты', cat:'Природа', addr:'ул. 78 Добровольческой Бригады, 14И, Красноярск', desc:'Ландшафтный парк.', rating:4.6, lat:56.0487, lng:92.9005, img:'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80', hidden:false},
+
+  {id:44, name:'Парк «Прищепка»', cat:'Природа', addr:'ул. Елены Стасовой, 69Л, Красноярск', desc:'Семейный парк отдыха.', rating:4.7, lat:56.0402, lng:92.7609, img:'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80', hidden:false},
+
+  {id:45, name:'Красноярский цирк', cat:'Развлечения', addr:'пр. Красноярский Рабочий, 143А, Красноярск', desc:'Цирковые шоу и представления.', rating:4.5, lat:55.9916, lng:92.9096, img:'https://images.unsplash.com/photo-1566737236500-c8ac43014a67?w=600&q=80', hidden:false},
+
+  {id:46, name:'Дом художника', cat:'Музеи', addr:'пр. Мира, 56, Красноярск', desc:'Выставочный зал художников.', rating:4.5, lat:56.0143, lng:92.8605, img:'https://images.unsplash.com/photo-1554907984-15263bfd63bd?w=600&q=80', hidden:false},
+
+  {id:47, name:'Культурный центр «Каменка»', cat:'Развлечения', addr:'ул. Академика Павлова, 21, Красноярск', desc:'Современное креативное пространство.', rating:4.6, lat:55.9987, lng:92.9348, img:'https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=600&q=80', hidden:false},
+
+  {id:48, name:'Сибирский федеральный университет', cat:'Музеи', addr:'пр. Свободный, 79, Красноярск', desc:'Главный университет региона.', rating:4.7, lat:56.0108, lng:92.7924, img:'https://images.unsplash.com/photo-1562774053-701939374585?w=600&q=80', hidden:false},
+
+  {id:49, name:'Красноярский ипподром', cat:'Развлечения', addr:'ул. Пограничников, 105, Красноярск', desc:'Конные соревнования и шоу.', rating:4.3, lat:56.0695, lng:92.9891, img:'https://images.unsplash.com/photo-1517849845537-4d257902454a?w=600&q=80', hidden:false},
+
+  {id:50, name:'Экопарк «Юдинская долина»', cat:'Природа', addr:'ул. Базайская, Красноярск', desc:'Природная территория для прогулок.', rating:4.6, lat:55.9714, lng:92.8344, img:'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80', hidden:false},
+
+    {id:51, name:'Площадь Революции', cat:'Развлечения', addr:'пл. Революции, Красноярск', desc:'Историческая площадь в центре города, место проведения мероприятий и прогулок.', rating:4.4, lat:56.0179, lng:92.8478, img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80', hidden:false},
+
+  {id:52, name:'Площадь Мира', cat:'Развлечения', addr:'пл. Мира, Красноярск', desc:'Центральная площадь у культурного кластера города.', rating:4.6, lat:56.0098, lng:92.8728, img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80', hidden:false},
+
+  {id:53, name:'Фонтан «Реки Сибири»', cat:'Развлечения', addr:'Театральная площадь, Красноярск', desc:'Один из самых красивых фонтанов города.', rating:4.7, lat:56.0121, lng:92.8641, img:'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&q=80', hidden:false},
+
+  {id:54, name:'Коммунальный мост', cat:'Развлечения', addr:'Коммунальный мост, Красноярск', desc:'Легендарный мост через Енисей, символ города.', rating:4.8, lat:56.0008, lng:92.8737, img:'https://images.unsplash.com/photo-1513828583688-c52646db42da?w=600&q=80', hidden:false},
+
+  {id:55, name:'Железнодорожный вокзал Красноярск-Пассажирский', cat:'Развлечения', addr:'ул. 30 Июля, 1, Красноярск', desc:'Главный вокзал города, историческое здание.', rating:4.4, lat:56.0054, lng:92.8396, img:'https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=600&q=80', hidden:false},
+
+  {id:56, name:'Речной вокзал', cat:'Развлечения', addr:'ул. Дубровинского, 1, Красноярск', desc:'Исторический речной вокзал на Енисее.', rating:4.3, lat:56.0042, lng:92.8504, img:'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=600&q=80', hidden:false},
+
+  {id:57, name:'Автовокзал Красноярск', cat:'Развлечения', addr:'ул. Аэровокзальная, 22, Красноярск', desc:'Главный автобусный терминал города.', rating:4.0, lat:56.0381, lng:92.8939, img:'https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=600&q=80', hidden:false},
+
+  {id:58, name:'Академгородок', cat:'Природа', addr:'Академгородок, Красноярск', desc:'Живописный район на возвышенности с красивыми видами.', rating:4.6, lat:56.0129, lng:92.7718, img:'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80', hidden:false},
+
+  {id:59, name:'Библиотека СФУ', cat:'Музеи', addr:'пр. Свободный, 79/10, Красноярск', desc:'Современная университетская библиотека.', rating:4.7, lat:56.0115, lng:92.7918, img:'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=600&q=80', hidden:false},
+
+  {id:60, name:'Красноярская краевая библиотека', cat:'Музеи', addr:'ул. Карла Маркса, 114, Красноярск', desc:'Главная публичная библиотека региона.', rating:4.6, lat:56.0174, lng:92.8508, img:'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=600&q=80', hidden:false},
+
+  {id:61, name:'Пароход-музей «Святитель Николай»', cat:'Музеи', addr:'пл. Мира, Красноярск', desc:'Исторический пароход-музей на Енисее.', rating:4.6, lat:56.0091, lng:92.8741, img:'https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=600&q=80', hidden:false},
+
+  {id:62, name:'Литературный музей им. Астафьева', cat:'Музеи', addr:'ул. Ленина, 66, Красноярск', desc:'Литературная история Красноярского края.', rating:4.6, lat:56.0193, lng:92.8559, img:'https://images.unsplash.com/photo-1554907984-15263bfd63bd?w=600&q=80', hidden:false},
+
+  {id:63, name:'Художественный музей им. Сурикова', cat:'Музеи', addr:'ул. Парижской Коммуны, 20, Красноярск', desc:'Коллекция русского искусства.', rating:4.7, lat:56.0148, lng:92.8599, img:'https://images.unsplash.com/photo-1554907984-15263bfd63bd?w=600&q=80', hidden:false},
+
+  {id:64, name:'Сквер Космонавтов', cat:'Природа', addr:'пр. Металлургов, Красноярск', desc:'Зелёная зона отдыха в Советском районе.', rating:4.3, lat:56.0517, lng:92.9568, img:'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80', hidden:false},
+
+  {id:65, name:'Сквер Энтузиастов', cat:'Природа', addr:'пр. Красноярский Рабочий, Красноярск', desc:'Городской сквер для прогулок.', rating:4.2, lat:55.9958, lng:92.9184, img:'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80', hidden:false},
+
+  {id:66, name:'Парк Гагарина', cat:'Природа', addr:'пр. Свободный, Красноярск', desc:'Популярный районный парк.', rating:4.4, lat:56.0216, lng:92.8137, img:'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80', hidden:false},
+
+  {id:67, name:'ТРЦ «Июнь»', cat:'Развлечения', addr:'ул. Партизана Железняка, 23, Красноярск', desc:'Торгово-развлекательный центр.', rating:4.4, lat:56.0408, lng:92.9099, img:'https://images.unsplash.com/photo-1519567241046-7f570eee3ce6?w=600&q=80', hidden:false},
+
+  {id:68, name:'ТРЦ «Комсомолл»', cat:'Развлечения', addr:'ул. Белинского, 8, Красноярск', desc:'Популярный торговый центр.', rating:4.3, lat:56.0295, lng:92.8874, img:'https://images.unsplash.com/photo-1519567241046-7f570eee3ce6?w=600&q=80', hidden:false},
+
+  {id:69, name:'Торговый квартал на Свободном', cat:'Развлечения', addr:'пр. Свободный, 46, Красноярск', desc:'Торговый комплекс.', rating:4.3, lat:56.0203, lng:92.8261, img:'https://images.unsplash.com/photo-1519567241046-7f570eee3ce6?w=600&q=80', hidden:false},
+
+  {id:70, name:'ТРЦ «На Свободном»', cat:'Развлечения', addr:'пр. Свободный, 34, Красноярск', desc:'Магазины и развлечения.', rating:4.3, lat:56.0191, lng:92.8334, img:'https://images.unsplash.com/photo-1519567241046-7f570eee3ce6?w=600&q=80', hidden:false},
+
+  {id:71, name:'Ресторан «Свинья и бисер»', cat:'Рестораны', addr:'ул. Весны, 30, Красноярск', desc:'Современный гастроресторан.', rating:4.6, lat:56.0449, lng:92.9047, img:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80', hidden:false},
+
+  {id:72, name:'Ресторан «Hello Wine»', cat:'Рестораны', addr:'пр. Мира, 91, Красноярск', desc:'Винный ресторан в центре.', rating:4.5, lat:56.0188, lng:92.8532, img:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80', hidden:false},
+
+  {id:73, name:'Ресторан «Mama Roma»', cat:'Рестораны', addr:'пр. Мира, 50, Красноярск', desc:'Итальянская кухня.', rating:4.5, lat:56.0131, lng:92.8634, img:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80', hidden:false},
+
+  {id:74, name:'Кофейня «Академия кофе»', cat:'Рестораны', addr:'ул. Ленина, 74, Красноярск', desc:'Спешелти-кофе и десерты.', rating:4.6, lat:56.0202, lng:92.8531, img:'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80', hidden:false},
+
+  {id:75, name:'Кофейня «Крем»', cat:'Рестораны', addr:'пр. Мира, 10, Красноярск', desc:'Популярное кафе в центре.', rating:4.4, lat:56.0096, lng:92.8687, img:'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80', hidden:false},
+
+  {id:76, name:'Мечеть «Нур Ислам»', cat:'Храмы', addr:'пр. Металлургов, 65, Красноярск', desc:'Главная мечеть города.', rating:4.7, lat:56.0538, lng:92.9501, img:'https://images.unsplash.com/photo-1548438294-1ad5d5f4f063?w=600&q=80', hidden:false},
+
+  {id:77, name:'Благовещенский монастырь', cat:'Храмы', addr:'ул. 9 Января, 30, Красноярск', desc:'Исторический женский монастырь.', rating:4.7, lat:56.0207, lng:92.8514, img:'https://images.unsplash.com/photo-1548438294-1ad5d5f4f063?w=600&q=80', hidden:false},
+
+  {id:78, name:'Остров Отдыха', cat:'Природа', addr:'остров Отдыха, Красноярск', desc:'Спортивно-парковая территория.', rating:4.6, lat:55.9948, lng:92.8895, img:'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80', hidden:false},
+
+  {id:79, name:'Вантовый мост', cat:'Развлечения', addr:'Виноградовский мост, Красноярск', desc:'Красивый пешеходный мост через Енисей.', rating:4.7, lat:56.0152, lng:92.8948, img:'https://images.unsplash.com/photo-1513828583688-c52646db42da?w=600&q=80', hidden:false},
+
+  {id:80, name:'Набережная Качи', cat:'Природа', addr:'река Кача, Красноярск', desc:'Городская прогулочная зона вдоль Качи.', rating:4.3, lat:56.0214, lng:92.8459, img:'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80', hidden:false},
+
+  {id:81, name:'Парк «Солнечная поляна»', cat:'Природа', addr:'мкр. Солнечный, Красноярск', desc:'Большой районный парк с прогулочными дорожками, детскими площадками и зонами отдыха.', rating:4.3, lat:56.1124, lng:92.9361, img:'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80', hidden:false},
+
+  {id:82, name:'Сквер имени Дзержинского', cat:'Природа', addr:'ул. Дзержинского, Красноярск', desc:'Исторический городской сквер в центре с тенистыми аллеями.', rating:4.2, lat:56.0187, lng:92.8512, img:'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80', hidden:false},
+
+  {id:83, name:'Сквер имени Сурикова', cat:'Природа', addr:'ул. Ленина, Красноярск', desc:'Небольшой уютный сквер рядом с музеем-усадьбой Сурикова.', rating:4.4, lat:56.0215, lng:92.8495, img:'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&q=80', hidden:false},
+
+  {id:84, name:'Красноярский театр кукол', cat:'Развлечения', addr:'пр. Мира, 104, Красноярск', desc:'Известный театр кукол с постановками для детей и взрослых.', rating:4.8, lat:56.0204, lng:92.8519, img:'https://images.unsplash.com/photo-1503095396549-807759245b35?w=600&q=80', hidden:false},
+
+  {id:85, name:'Дом офицеров', cat:'Музеи', addr:'ул. Перенсона, 20, Красноярск', desc:'Историческое здание и культурный центр.', rating:4.5, lat:56.0137, lng:92.8628, img:'https://images.unsplash.com/photo-1554907984-15263bfd63bd?w=600&q=80', hidden:false},
+
+  {id:86, name:'Музей геологии Центральной Сибири', cat:'Музеи', addr:'пр. Мира, 55, Красноярск', desc:'Коллекции минералов, горных пород и геологических находок.', rating:4.4, lat:56.0141, lng:92.8612, img:'https://images.unsplash.com/photo-1554907984-15263bfd63bd?w=600&q=80', hidden:false},
+
+  {id:87, name:'Памятник командору Резанову', cat:'Развлечения', addr:'пл. Мира, Красноярск', desc:'Один из заметных памятников историческим деятелям города.', rating:4.3, lat:56.0107, lng:92.8716, img:'https://images.unsplash.com/photo-1513828583688-c52646db42da?w=600&q=80', hidden:false},
+
+  {id:88, name:'Памятник детям войны', cat:'Развлечения', addr:'пр. Мира, Красноярск', desc:'Трогательный мемориал в память о военном поколении.', rating:4.5, lat:56.0162, lng:92.8583, img:'https://images.unsplash.com/photo-1513828583688-c52646db42da?w=600&q=80', hidden:false},
+
+  {id:89, name:'Мемориал Победы', cat:'Музеи', addr:'ул. Дудинская, 2А, Красноярск', desc:'Военно-исторический мемориальный комплекс и музей.', rating:4.8, lat:56.0308, lng:92.8726, img:'https://images.unsplash.com/photo-1554907984-15263bfd63bd?w=600&q=80', hidden:false},
+
+  {id:90, name:'Часовня святого Николая', cat:'Храмы', addr:'ул. Кирова, Красноярск', desc:'Небольшая православная часовня в центре города.', rating:4.4, lat:56.0181, lng:92.8557, img:'https://images.unsplash.com/photo-1548438294-1ad5d5f4f063?w=600&q=80', hidden:false},
+
+  {id:91, name:'Церковь Иоанна Предтечи', cat:'Храмы', addr:'ул. Горького, 27, Красноярск', desc:'Исторический православный храм.', rating:4.7, lat:56.0199, lng:92.8488, img:'https://images.unsplash.com/photo-1548438294-1ad5d5f4f063?w=600&q=80', hidden:false},
+
+  {id:92, name:'Лютеранская церковь', cat:'Храмы', addr:'ул. Декабристов, Красноярск', desc:'Историческое протестантское здание.', rating:4.3, lat:56.0177, lng:92.8530, img:'https://images.unsplash.com/photo-1548438294-1ad5d5f4f063?w=600&q=80', hidden:false},
+
+  {id:93, name:'ТРЦ «ПокровSky»', cat:'Развлечения', addr:'ул. Мужества, 10, Красноярск', desc:'Современный торговый центр в Покровке.', rating:4.4, lat:56.0277, lng:92.8891, img:'https://images.unsplash.com/photo-1519567241046-7f570eee3ce6?w=600&q=80', hidden:false},
+
+  {id:94, name:'ТРЦ «Красноярье»', cat:'Развлечения', addr:'пр. Газеты Красноярский Рабочий, 120, Красноярск', desc:'Один из старейших торговых центров города.', rating:4.1, lat:55.9927, lng:92.9146, img:'https://images.unsplash.com/photo-1519567241046-7f570eee3ce6?w=600&q=80', hidden:false},
+
+  {id:95, name:'Бизнес-отель «Новотель»', cat:'Отели', addr:'ул. Карла Маркса, 123, Красноярск', desc:'Современный международный отель в центре.', rating:4.6, lat:56.0167, lng:92.8486, img:'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80', hidden:false},
+
+  {id:96, name:'Отель «Огни Енисея»', cat:'Отели', addr:'ул. Дубровинского, 80, Красноярск', desc:'Популярный отель с видом на реку.', rating:4.4, lat:56.0098, lng:92.8516, img:'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80', hidden:false},
+
+  {id:97, name:'Гостиница «Красноярск»', cat:'Отели', addr:'ул. Урицкого, 94, Красноярск', desc:'Классическая гостиница в историческом центре.', rating:4.3, lat:56.0159, lng:92.8548, img:'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80', hidden:false},
+
+  {id:98, name:'Ресторан «0.75 Please»', cat:'Рестораны', addr:'пр. Мира, 86, Красноярск', desc:'Известный гастрономический ресторан авторской кухни.', rating:4.8, lat:56.0171, lng:92.8541, img:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80', hidden:false},
+
+  {id:99, name:'Ресторан «Чешуя»', cat:'Рестораны', addr:'ул. Ленина, 118А, Красноярск', desc:'Современный ресторан с акцентом на рыбу и морепродукты.', rating:4.7, lat:56.0224, lng:92.8479, img:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80', hidden:false},
+
+  {id:100, name:'Бар «The James Shark Pub»', cat:'Рестораны', addr:'пр. Мира, 91, Красноярск', desc:'Популярный паб с большим выбором напитков.', rating:4.5, lat:56.0185, lng:92.8533, img:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80', hidden:false},
+
+  {id:101, name:'Кафе «Перцы»', cat:'Рестораны', addr:'пр. Мира, 10, Красноярск', desc:'Сетевое кафе с популярным меню.', rating:4.4, lat:56.0099, lng:92.8682, img:'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80', hidden:false},
+
+  {id:102, name:'Кофейня «Traveler’s Coffee на Весны»', cat:'Рестораны', addr:'ул. Весны, 1, Красноярск', desc:'Кофейня в деловом районе.', rating:4.4, lat:56.0435, lng:92.9038, img:'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80', hidden:false},
+
+  {id:103, name:'Ледовый дворец «Сокол»', cat:'Развлечения', addr:'пр. Металлургов, 22Д, Красноярск', desc:'Спортивная арена и каток.', rating:4.4, lat:56.0534, lng:92.9426, img:'https://images.unsplash.com/photo-1547347298-4074fc3086f0?w=600&q=80', hidden:false},
+
+  {id:104, name:'Бассейн «Энергия»', cat:'Развлечения', addr:'ул. Бограда, 91, Красноярск', desc:'Популярный городской бассейн.', rating:4.3, lat:56.0118, lng:92.8409, img:'https://images.unsplash.com/photo-1519315901367-f34ff9154487?w=600&q=80', hidden:false},
+
+  {id:105, name:'Фанпарк «Бобровый лог» (нижняя станция)', cat:'Природа', addr:'ул. Сибирская, 92, Красноярск', desc:'Входная зона горнолыжного и прогулочного комплекса.', rating:4.8, lat:55.9656, lng:92.7794, img:'https://images.unsplash.com/photo-1551524559-8af4e6624178?w=600&q=80', hidden:false},
+
+  {id:106, name:'Восточный вход в «Столбы»', cat:'Природа', addr:'ул. Базайская, Красноярск', desc:'Альтернативный вход в национальный парк.', rating:4.7, lat:55.9592, lng:92.8167, img:'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80', hidden:false},
+
+  {id:107, name:'Манская петля', cat:'Природа', addr:'пос. Усть-Мана, Красноярский край', desc:'Популярный природный маршрут с потрясающим видом на изгиб реки Мана.', rating:4.9, lat:55.9314, lng:92.5039, img:'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80', hidden:false},
+
+  {id:108, name:'Дивногорская набережная', cat:'Природа', addr:'г. Дивногорск, набережная', desc:'Живописная прогулочная зона рядом с Красноярском.', rating:4.8, lat:55.9581, lng:92.3727, img:'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80', hidden:false},
+
+  {id:109, name:'Красноярская ГЭС (смотровая)', cat:'Развлечения', addr:'г. Дивногорск, плотина', desc:'Смотровая площадка на одну из крупнейших ГЭС России.', rating:4.8, lat:55.9679, lng:92.3786, img:'https://images.unsplash.com/photo-1513828583688-c52646db42da?w=600&q=80', hidden:false},
+
+  {id:110, name:'Пещера Караульная', cat:'Природа', addr:'пос. Удачный, Красноярск', desc:'Известная оборудованная пещера рядом с городом.', rating:4.7, lat:55.9982, lng:92.7061, img:'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600&q=80', hidden:false},
+  
  ];
 
 // Определяем базовый URL API (на Render будет автоматически, локально — localhost:3000)

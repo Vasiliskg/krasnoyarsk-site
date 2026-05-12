@@ -1725,21 +1725,7 @@ async function geocodeAndRender(filter) {
   hideMapStatus();
 }
 
-    // Геокодируем остальные
-  const needGeo = toShow.filter(p => !geoCache[p.addr]);
-  let done = 0;
-  for (const p of needGeo) {
-    const coords = await geocodeAddress(p.addr, p.name);
-    await new Promise(r => setTimeout(r, 310));
-    const color = CAT_COLORS[p.cat] || '#888';
-    const marker = L.marker([coords.lat, coords.lng], { icon: makeLeafletIcon(color) })
-      .addTo(fullMap)
-      .bindPopup(buildPopupHtml(p, color), { maxWidth: 240 });
-    fullMarkers.push(marker);
-    done++;
-    showMapStatus(`Загружаем места... ${cached.length + done}/${toShow.length}`);
-  }
-
+  
   geocodingInProgress = false;
 }
 

@@ -922,6 +922,11 @@ footer {
           <span class="admin-search-icon">🔍</span>
           <input type="text" placeholder="Поиск по названию или адресу..." id="admin-search" oninput="renderAdminTable()">
         </div>
+        <select id="admin-sort" onchange="renderAdminTable()" style="padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-family:'Manrope',sans-serif;font-size:13px;background:white;cursor:pointer;outline:none;">
+  <option value="rating">По рейтингу</option>
+  <option value="name">По названию</option>
+  <option value="cat">По категории</option>
+</select>
         <label class="show-hidden-label">
           <input type="checkbox" id="show-hidden" onchange="renderAdminTable()">
           Показать скрытые
@@ -1715,9 +1720,13 @@ function setAdminTab(el, tab) {
 function renderAdminTable() {
   const q = (document.getElementById('admin-search')?.value||'').toLowerCase();
   const showHidden = document.getElementById('show-hidden')?.checked;
+  const sortVal = document.getElementById('admin-sort')?.value || 'rating';
   let list = places;
   if (!showHidden) list = list.filter(p=>!p.hidden);
   if (q) list = list.filter(p=>p.name.toLowerCase().includes(q)||p.addr.toLowerCase().includes(q));
+  if (sortVal === 'rating') list = [...list].sort((a,b)=>b.rating-a.rating);
+  if (sortVal === 'name') list = [...list].sort((a,b)=>a.name.localeCompare(b.name,'ru'));
+  if (sortVal === 'cat') list = [...list].sort((a,b)=>a.cat.localeCompare(b.cat,'ru'));
   
   document.getElementById('admin-tbody').innerHTML = list.map(p => {
     const badge = CAT_BADGES[p.cat]||'';
@@ -1734,6 +1743,7 @@ function renderAdminTable() {
             ${p.hidden?'👁️':'🚫'}
           </button>
           <button class="action-btn action-link" onclick="showToast('Открыть на сайте')" title="Открыть">↗️</button>
+          <button class="action-btn" style="background:#fce8e8;color:#c04040;" onclick="deletePlace(${p.id})" title="Удалить">🗑️</button>
         </div>
       </td>
     </tr>`;
@@ -1742,7 +1752,21 @@ function renderAdminTable() {
   const total = places.filter(p=>!p.hidden).length;
   document.getElementById('admin-count-label').textContent = `${total} мест на сайте, ${places.length} всего`;
 }
-
+async function deletePlace(id) {
+  const p = places.find(pp => pp.id === id);
+  if (!p) return;
+  if (!confirm(`Удалить «${p.name}»? Это действие нельзя отменить.`)) return;
+  try {
+    await fetch(`${API_BASE}/api/places/${id}`, { method: 'DELETE' });
+    places = places.filter(pp => pp.id !== id);
+    renderAdminTable();
+    updateAdminStats();
+    renderPopular();
+    showToast('✓ Место удалено');
+  } catch(e) {
+    showToast('Ошибка удаления');
+  }
+}
 async function toggleHide(id) {
   try {
     const updated = await toggleHideOnServer(id);

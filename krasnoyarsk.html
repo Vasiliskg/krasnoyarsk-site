@@ -1711,8 +1711,11 @@ withCoords.forEach(p => {
 saveGeoCache();
 // Геокодируем только те у которых нет координат
 const noCoords = places.filter(p => !p.lat || !p.lng || Math.abs(p.lat) < 0.1);
-if (noCoords.length > 0) await geocodeAndRender('all');
-hideMapStatus(); 
+if (noCoords.length > 0) {
+  await geocodeAndRender('all');
+} else {
+  hideMapStatus();
+} 
 }
 
 async function geocodeAndRender(filter) {

@@ -1269,24 +1269,12 @@ async function loadPlacesFromServer() {
   try {
     const res = await fetch(`${API_BASE}/api/places`);
     if (!res.ok) throw new Error('Сервер недоступен');
-
     const data = await res.json();
-
-    return data.map(p => ({
-      ...p,
-      desc: p.desc_text || '',
-      lat: Number(p.lat),
-      lng: Number(p.lng)
-    }));
-
+    // Приводим поля к нужному формату (сервер возвращает desc_text, нам нужен desc)
+    return data.map(p => ({ ...p, desc: p.desc_text || '' }));
   } catch(e) {
     console.warn('Сервер недоступен, используем локальные данные:', e);
-
-    return JSON.parse(JSON.stringify(defaultPlaces)).map(p => ({
-      ...p,
-      lat: Number(p.lat),
-      lng: Number(p.lng)
-    }));
+    return JSON.parse(JSON.stringify(defaultPlaces));
   }
 }
 
@@ -1609,12 +1597,27 @@ async function initHomeMap() {
   }).addTo(homeMap);
 
   // Показываем кешированные точки сразу
- const withCoords = places.filter(
-  p => !p.hidden && p.lat && p.lng
-);
+  const cached = places.filter(p => !p.hidden && geoCache[p.addr]);
+  const withCoords = cached.map(p => ({ ...p, ...geoCache[p.addr] }));
+  addMarkersToMap(homeMap, homeMarkers, withCoords);
 
-addMarkersToMap(homeMap, homeMarkers, withCoords);
-
+  // Геокодируем остальные в фоне
+  const needGeo = places.filter(p => !p.hidden && !geoCache[p.addr]);
+  for (const p of needGeo) {
+    const coords = await geocodeAddress(p.addr, p.name);
+    await new Promise(r => setTimeout(r, 310));
+    const updated = { ...p, ...coords };
+    const marker = L.marker([coords.lat, coords.lng], { icon: makeLeafletIcon(CAT_COLORS[p.cat]||'#888') })
+      .addTo(homeMap)
+      .bindPopup(`<div style="font-family:'Manrope',sans-serif;min-width:175px;">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:700;color:${CAT_COLORS[p.cat]||'#888'};margin-bottom:4px;">${p.cat}</div>
+        <div style="font-weight:700;font-size:14px;margin-bottom:5px;">${p.name}</div>
+        <div style="font-size:12px;color:#888;margin-bottom:3px;">📍 ${p.addr}</div>
+        <div style="font-size:12px;color:#f5a623;font-weight:700;">★ ${p.rating}</div>
+      </div>`, { maxWidth: 230 });
+    homeMarkers.push(marker);
+  }
+}
 
 async function homeMapFilter(f) {
   if (!homeMap) return;
@@ -1670,25 +1673,33 @@ async function geocodeAndRender(filter) {
   // Сразу показываем кешированные
   fullMarkers.forEach(m => m.remove());
   fullMarkers.length = 0;
- toShow.forEach(p => {
-    if (!p.lat || !p.lng) return;
-
+  const cached = toShow.filter(p => geoCache[p.addr]);
+  cached.forEach(p => {
+    const c = geoCache[p.addr];
     const color = CAT_COLORS[p.cat] || '#888';
-
-    const marker = L.marker(
-        [p.lat, p.lng],
-        { icon: makeLeafletIcon(color) }
-    )
-    .addTo(fullMap)
-    .bindPopup(
-        buildPopupHtml(p, color),
-        { maxWidth: 240 }
-    );
-
+    const marker = L.marker([c.lat, c.lng], { icon: makeLeafletIcon(color) })
+      .addTo(fullMap)
+      .bindPopup(buildPopupHtml(p, color), { maxWidth: 240 });
     fullMarkers.push(marker);
-});
+  });
 
+  // Геокодируем остальные
+  const needGeo = toShow.filter(p => !geoCache[p.addr]);
+  let done = 0;
+  for (const p of needGeo) {
+    const coords = await geocodeAddress(p.addr, p.name);
+    await new Promise(r => setTimeout(r, 310));
+    const color = CAT_COLORS[p.cat] || '#888';
+    const marker = L.marker([coords.lat, coords.lng], { icon: makeLeafletIcon(color) })
+      .addTo(fullMap)
+      .bindPopup(buildPopupHtml(p, color), { maxWidth: 240 });
+    fullMarkers.push(marker);
+    done++;
+    showMapStatus(`Загружаем места... ${cached.length + done}/${toShow.length}`);
+  }
 
+  geocodingInProgress = false;
+}
 
 function buildPopupHtml(p, color) {
   return `<div style="font-family:'Manrope',sans-serif;min-width:185px;">

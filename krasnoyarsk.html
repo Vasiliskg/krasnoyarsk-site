@@ -1518,11 +1518,49 @@ try { geoCache = JSON.parse(localStorage.getItem(GEO_CACHE_KEY) || '{}'); } catc
 function saveGeoCache() {
   try { localStorage.setItem(GEO_CACHE_KEY, JSON.stringify(geoCache)); } catch(e) {}
 }
+  async function saveCoordsToDB(addr, lat, lng) {
+  try {
+    // Находим место по адресу и обновляем координаты
+    const place = places.find(p => p.addr === addr);
+    if (!place || !place.id) return;
+    await fetch(`${API_BASE}/api/places/${place.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: place.name, cat: place.cat, addr: place.addr,
+        desc_text: place.desc || place.desc_text,
+        rating: place.rating, img: place.img,
+        lat, lng, hidden: place.hidden || false
+      })
+    });
+  } catch(e) {}
+}
 
 // Геокодирование через Nominatim (OpenStreetMap) по адресу
 async function geocodeAddress(addr, name) {
   const cacheKey = addr;
   if (geoCache[cacheKey]) return geoCache[cacheKey];
+
+  const query = addr.includes('Дивногорск')
+    ? addr + ', Красноярский край, Россия'
+    : addr + ', Красноярск, Россия';
+
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1&accept-language=ru`;
+    const res = await fetch(url, { headers: { 'User-Agent': 'KrasnoyarskCityGuide/1.0' } });
+    const data = await res.json();
+    if (data && data.length > 0) {
+      const coords = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+      geoCache[cacheKey] = coords;
+      saveGeoCache();
+      // Сохраняем координаты в БД чтобы все пользователи видели правильные точки
+      saveCoordsToDB(addr, coords.lat, coords.lng);
+      return coords;
+    }
+  } catch(e) {}
+
+  return { lat: 56.0090 + (Math.random()-0.5)*0.01, lng: 92.8521 + (Math.random()-0.5)*0.01 };
+}
 
   // Формируем запрос — добавляем "Красноярск" для точности
   const query = addr.includes('Дивногорск') || addr.includes('Дивног')
@@ -1659,9 +1697,22 @@ async function initFullMap() {
   }).addTo(fullMap);
   fullMap.zoomControl.setPosition('topleft');
 
-  showMapStatus('Определяем расположение мест...');
-  await geocodeAndRender('all');
-  hideMapStatus();
+ showMapStatus('Загружаем карту...');
+// Сначала показываем места у которых уже есть координаты в БД
+const withCoords = places.filter(p => p.lat && p.lng && Math.abs(p.lat) > 0.1);
+withCoords.forEach(p => {
+  const color = CAT_COLORS[p.cat] || '#888';
+  const marker = L.marker([p.lat, p.lng], { icon: makeLeafletIcon(color) })
+    .addTo(fullMap)
+    .bindPopup(buildPopupHtml(p, color), { maxWidth: 240 });
+  fullMarkers.push(marker);
+  geoCache[p.addr] = { lat: p.lat, lng: p.lng };
+});
+saveGeoCache();
+// Геокодируем только те у которых нет координат
+const noCoords = places.filter(p => !p.lat || !p.lng || Math.abs(p.lat) < 0.1);
+if (noCoords.length > 0) await geocodeAndRender('all');
+hideMapStatus(); 
 }
 
 async function geocodeAndRender(filter) {

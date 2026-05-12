@@ -1725,20 +1725,7 @@ async function geocodeAndRender(filter) {
   hideMapStatus();
 }
 
-  // Сразу показываем кешированные
-  fullMarkers.forEach(m => m.remove());
-  fullMarkers.length = 0;
-  const cached = toShow.filter(p => geoCache[p.addr]);
-  cached.forEach(p => {
-    const c = geoCache[p.addr];
-    const color = CAT_COLORS[p.cat] || '#888';
-    const marker = L.marker([c.lat, c.lng], { icon: makeLeafletIcon(color) })
-      .addTo(fullMap)
-      .bindPopup(buildPopupHtml(p, color), { maxWidth: 240 });
-    fullMarkers.push(marker);
-  });
-
-  // Геокодируем остальные
+    // Геокодируем остальные
   const needGeo = toShow.filter(p => !geoCache[p.addr]);
   let done = 0;
   for (const p of needGeo) {

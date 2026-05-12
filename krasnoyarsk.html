@@ -1572,7 +1572,7 @@ async function geocodeAllPlaces(placesList) {
     // Throttle — 1 запрос в 300мс (лимит Nominatim)
     const coords = await geocodeAddress(p.addr, p.name);
     await new Promise(r => setTimeout(r, 310));
-    result.push({ ...p, lat: coords.lat, lng: coords.lng });
+      result.push({ ...p, lat: coords.lat, lng: coords.lng });
   }
   return result;
 }

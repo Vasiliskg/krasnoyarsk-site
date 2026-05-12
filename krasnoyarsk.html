@@ -602,7 +602,17 @@ footer {
   </div>
   <div class="nav-right">
     <button class="btn-admin" onclick="showAdminLogin()">🛡️ Админ</button>
-    <button class="btn-login">Войти</button>
+    <div id="nav-auth-area">
+  <button class="btn-login" onclick="openAuthModal()" id="btn-nav-login">Войти</button>
+</div>
+<div id="nav-user-area" style="display:none;align-items:center;gap:10px;">
+  <div id="nav-user-avatar" onclick="openProfileModal()"
+    style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.2);color:white;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;cursor:pointer;border:2px solid rgba(255,255,255,0.3);overflow:hidden;">
+  </div>
+  <span id="nav-user-name" onclick="openProfileModal()"
+    style="color:rgba(255,255,255,0.9);font-size:13px;font-weight:600;cursor:pointer;">
+  </span>
+</div>
   </div>
 </nav>
 
@@ -975,6 +985,110 @@ footer {
         </div>
       </div>
       <div style="background:white;border-radius:12px;padding:24px;box-shadow:0 1px 6px rgba(0,0,0,0.06);" id="stats-cats"></div>
+    </div>
+  </div>
+</div>
+  <!-- AUTH MODAL -->
+<div class="modal-overlay" id="auth-overlay" onclick="closeAuthModal(event)">
+  <div class="modal" style="max-width:420px;">
+    <div style="display:flex;gap:0;margin-bottom:24px;background:#f5f2ed;border-radius:10px;padding:4px;">
+      <button id="auth-tab-login" onclick="switchAuthTab('login')"
+        style="flex:1;padding:10px;border:none;border-radius:8px;font-family:'Manrope',sans-serif;font-size:14px;font-weight:700;cursor:pointer;background:white;color:#1c3d2e;box-shadow:0 1px 4px rgba(0,0,0,0.1);">
+        Войти
+      </button>
+      <button id="auth-tab-register" onclick="switchAuthTab('register')"
+        style="flex:1;padding:10px;border:none;border-radius:8px;font-family:'Manrope',sans-serif;font-size:14px;font-weight:700;cursor:pointer;background:transparent;color:#999;">
+        Регистрация
+      </button>
+    </div>
+
+    <!-- Форма входа -->
+    <div id="auth-form-login">
+      <div class="modal-field">
+        <label class="modal-label">Email</label>
+        <input type="email" class="modal-input" id="login-email" placeholder="your@email.com">
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Пароль</label>
+        <input type="password" class="modal-input" id="login-password" placeholder="••••••••"
+          onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div id="login-error" style="color:#c85c3a;font-size:13px;margin-bottom:12px;display:none;"></div>
+      <button class="btn-save" style="width:100%;padding:13px;" onclick="doLogin()" id="btn-do-login">
+        Войти
+      </button>
+    </div>
+
+    <!-- Форма регистрации -->
+    <div id="auth-form-register" style="display:none;">
+      <div class="modal-field">
+        <label class="modal-label">Имя *</label>
+        <input type="text" class="modal-input" id="reg-name" placeholder="Иван Иванов">
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Email *</label>
+        <input type="email" class="modal-input" id="reg-email" placeholder="your@email.com">
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Пароль * (минимум 6 символов)</label>
+        <input type="password" class="modal-input" id="reg-password" placeholder="••••••••">
+      </div>
+      <div id="reg-error" style="color:#c85c3a;font-size:13px;margin-bottom:12px;display:none;"></div>
+      <button class="btn-save" style="width:100%;padding:13px;" onclick="doRegister()" id="btn-do-register">
+        Создать аккаунт
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE MODAL -->
+<div class="modal-overlay" id="profile-overlay" onclick="closeProfileModal(event)">
+  <div class="modal" style="max-width:480px;">
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;">
+      <div id="profile-avatar-big" style="width:64px;height:64px;border-radius:50%;background:var(--green-dark);color:white;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;flex-shrink:0;"></div>
+      <div>
+        <div id="profile-name-big" style="font-family:'Unbounded',sans-serif;font-size:18px;font-weight:800;"></div>
+        <div id="profile-email-big" style="font-size:13px;color:#999;margin-top:2px;"></div>
+      </div>
+    </div>
+
+    <!-- Вкладки профиля -->
+    <div style="display:flex;gap:0;margin-bottom:24px;background:#f5f2ed;border-radius:10px;padding:4px;">
+      <button onclick="switchProfileTab('info')" id="ptab-info"
+        style="flex:1;padding:8px;border:none;border-radius:8px;font-family:'Manrope',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:white;color:#1c3d2e;box-shadow:0 1px 4px rgba(0,0,0,0.08);">
+        Профиль
+      </button>
+      <button onclick="switchProfileTab('favs')" id="ptab-favs"
+        style="flex:1;padding:8px;border:none;border-radius:8px;font-family:'Manrope',sans-serif;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:#999;">
+        Избранное
+      </button>
+    </div>
+
+    <!-- Инфо профиля -->
+    <div id="profile-tab-info">
+      <div class="modal-field">
+        <label class="modal-label">Имя</label>
+        <input type="text" class="modal-input" id="edit-name" placeholder="Ваше имя">
+      </div>
+      <div class="modal-field">
+        <label class="modal-label">Фото (URL)</label>
+        <input type="text" class="modal-input" id="edit-avatar" placeholder="https://...">
+      </div>
+      <div style="display:flex;gap:10px;margin-top:8px;">
+        <button class="btn-save" style="flex:1;padding:11px;" onclick="saveProfile()">Сохранить</button>
+        <button onclick="doLogout()"
+          style="flex:1;padding:11px;border:1px solid #e0e0e0;border-radius:8px;background:#fafafa;font-family:'Manrope',sans-serif;font-size:13px;font-weight:700;cursor:pointer;color:#c85c3a;">
+          Выйти
+        </button>
+      </div>
+    </div>
+
+    <!-- Избранное -->
+    <div id="profile-tab-favs" style="display:none;">
+      <div id="favs-list" style="display:grid;gap:12px;max-height:350px;overflow-y:auto;"></div>
+      <div id="favs-empty" style="text-align:center;color:#aaa;padding:32px;font-size:14px;display:none;">
+        У вас пока нет избранных мест.<br>Нажмите 🤍 на карточке места чтобы добавить.
+      </div>
     </div>
   </div>
 </div>
@@ -1378,7 +1492,8 @@ function catalogCardHTML(p) {
       ${p.img ? `<img src="${p.img}" alt="${p.name}" onerror="this.style.display='none'">` : ''}
       <div class="catalog-card-img-ph" style="${p.img?'display:none':''}">${CAT_EMOJIS[p.cat]||'📍'}</div>
       <div class="catalog-card-rating">★ ${p.rating}</div>
-      <div class="catalog-card-fav" onclick="event.stopPropagation()">🤍</div>
+      <div class="catalog-card-fav" onclick="event.stopPropagation();toggleFavorite(${p.id},this)"
+  data-id="${p.id}">🤍</div>
     </div>
     <div class="catalog-card-body">
       <div class="catalog-card-cat" style="color:${color}">${p.cat.toUpperCase()}</div>
@@ -2075,6 +2190,227 @@ function closeModal(event) {
   if (event && event.target !== document.getElementById('modal-overlay')) return;
   document.getElementById('modal-overlay').classList.remove('open');
 }
+  // ===================== AUTH =====================
+let currentUser = null;
+let userFavorites = new Set();
+
+async function checkAuth() {
+  try {
+    const res = await fetch(`${API_BASE}/api/auth/me`, { credentials: 'include' });
+    const data = await res.json();
+    if (data.user) {
+      currentUser = data.user;
+      updateNavUser();
+      await loadFavorites();
+    }
+  } catch(e) {}
+}
+
+function updateNavUser() {
+  const loginArea = document.getElementById('nav-auth-area');
+  const userArea  = document.getElementById('nav-user-area');
+  const avatar    = document.getElementById('nav-user-avatar');
+  const name      = document.getElementById('nav-user-name');
+  if (currentUser) {
+    loginArea.style.display = 'none';
+    userArea.style.display  = 'flex';
+    name.textContent = currentUser.name.split(' ')[0];
+    if (currentUser.avatar) {
+      avatar.innerHTML = `<img src="${currentUser.avatar}" style="width:100%;height:100%;object-fit:cover;">`;
+    } else {
+      avatar.textContent = currentUser.name[0].toUpperCase();
+    }
+  } else {
+    loginArea.style.display = 'block';
+    userArea.style.display  = 'none';
+  }
+}
+
+async function loadFavorites() {
+  if (!currentUser) return;
+  try {
+    const res = await fetch(`${API_BASE}/api/favorites`, { credentials: 'include' });
+    const data = await res.json();
+    userFavorites = new Set(data.map(p => p.id));
+    updateFavButtons();
+  } catch(e) {}
+}
+
+function updateFavButtons() {
+  document.querySelectorAll('.catalog-card-fav[data-id]').forEach(btn => {
+    const id = parseInt(btn.dataset.id);
+    btn.textContent = userFavorites.has(id) ? '❤️' : '🤍';
+  });
+}
+
+async function toggleFavorite(id, btn) {
+  if (!currentUser) { openAuthModal(); return; }
+  const isFav = userFavorites.has(id);
+  try {
+    if (isFav) {
+      await fetch(`${API_BASE}/api/favorites/${id}`, { method: 'DELETE', credentials: 'include' });
+      userFavorites.delete(id);
+      btn.textContent = '🤍';
+    } else {
+      await fetch(`${API_BASE}/api/favorites/${id}`, { method: 'POST', credentials: 'include' });
+      userFavorites.add(id);
+      btn.textContent = '❤️';
+    }
+  } catch(e) { showToast('Ошибка. Попробуйте ещё раз.'); }
+}
+
+function openAuthModal() {
+  document.getElementById('auth-overlay').classList.add('open');
+  switchAuthTab('login');
+}
+function closeAuthModal(event) {
+  if (event && event.target !== document.getElementById('auth-overlay')) return;
+  document.getElementById('auth-overlay').classList.remove('open');
+}
+function switchAuthTab(tab) {
+  document.getElementById('auth-form-login').style.display    = tab==='login' ? '' : 'none';
+  document.getElementById('auth-form-register').style.display = tab==='register' ? '' : 'none';
+  document.getElementById('auth-tab-login').style.background    = tab==='login' ? 'white' : 'transparent';
+  document.getElementById('auth-tab-login').style.color         = tab==='login' ? '#1c3d2e' : '#999';
+  document.getElementById('auth-tab-register').style.background = tab==='register' ? 'white' : 'transparent';
+  document.getElementById('auth-tab-register').style.color      = tab==='register' ? '#1c3d2e' : '#999';
+}
+
+async function doLogin() {
+  const email    = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errEl    = document.getElementById('login-error');
+  const btn      = document.getElementById('btn-do-login');
+  errEl.style.display = 'none';
+  btn.textContent = 'Входим...'; btn.disabled = true;
+  try {
+    const res  = await fetch(`${API_BASE}/api/auth/login`, {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) { errEl.textContent = data.error; errEl.style.display = 'block'; }
+    else {
+      currentUser = data.user;
+      updateNavUser();
+      await loadFavorites();
+      document.getElementById('auth-overlay').classList.remove('open');
+      showToast('✓ Добро пожаловать, ' + currentUser.name.split(' ')[0] + '!');
+    }
+  } catch(e) { errEl.textContent = 'Ошибка соединения'; errEl.style.display = 'block'; }
+  btn.textContent = 'Войти'; btn.disabled = false;
+}
+
+async function doRegister() {
+  const name     = document.getElementById('reg-name').value.trim();
+  const email    = document.getElementById('reg-email').value.trim();
+  const password = document.getElementById('reg-password').value;
+  const errEl    = document.getElementById('reg-error');
+  const btn      = document.getElementById('btn-do-register');
+  errEl.style.display = 'none';
+  btn.textContent = 'Создаём...'; btn.disabled = true;
+  try {
+    const res  = await fetch(`${API_BASE}/api/auth/register`, {
+      method: 'POST', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) { errEl.textContent = data.error; errEl.style.display = 'block'; }
+    else {
+      currentUser = data.user;
+      updateNavUser();
+      document.getElementById('auth-overlay').classList.remove('open');
+      showToast('✓ Аккаунт создан! Добро пожаловать, ' + currentUser.name.split(' ')[0] + '!');
+    }
+  } catch(e) { errEl.textContent = 'Ошибка соединения'; errEl.style.display = 'block'; }
+  btn.textContent = 'Создать аккаунт'; btn.disabled = false;
+}
+
+async function doLogout() {
+  await fetch(`${API_BASE}/api/auth/logout`, { method: 'POST', credentials: 'include' });
+  currentUser = null;
+  userFavorites.clear();
+  updateNavUser();
+  document.getElementById('profile-overlay').classList.remove('open');
+  showToast('Вы вышли из аккаунта');
+}
+
+function openProfileModal() {
+  if (!currentUser) { openAuthModal(); return; }
+  document.getElementById('profile-name-big').textContent  = currentUser.name;
+  document.getElementById('profile-email-big').textContent = currentUser.email;
+  const av = document.getElementById('profile-avatar-big');
+  if (currentUser.avatar) {
+    av.innerHTML = `<img src="${currentUser.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+  } else {
+    av.textContent = currentUser.name[0].toUpperCase();
+  }
+  document.getElementById('edit-name').value   = currentUser.name;
+  document.getElementById('edit-avatar').value = currentUser.avatar || '';
+  switchProfileTab('info');
+  document.getElementById('profile-overlay').classList.add('open');
+}
+function closeProfileModal(event) {
+  if (event && event.target !== document.getElementById('profile-overlay')) return;
+  document.getElementById('profile-overlay').classList.remove('open');
+}
+function switchProfileTab(tab) {
+  document.getElementById('profile-tab-info').style.display = tab==='info' ? '' : 'none';
+  document.getElementById('profile-tab-favs').style.display = tab==='favs' ? '' : 'none';
+  document.getElementById('ptab-info').style.background = tab==='info' ? 'white' : 'transparent';
+  document.getElementById('ptab-info').style.color      = tab==='info' ? '#1c3d2e' : '#999';
+  document.getElementById('ptab-favs').style.background = tab==='favs' ? 'white' : 'transparent';
+  document.getElementById('ptab-favs').style.color      = tab==='favs' ? '#1c3d2e' : '#999';
+  if (tab === 'favs') renderFavsList();
+}
+
+async function renderFavsList() {
+  const list  = document.getElementById('favs-list');
+  const empty = document.getElementById('favs-empty');
+  list.innerHTML = '<div style="text-align:center;color:#aaa;padding:20px;">Загрузка...</div>';
+  try {
+    const res  = await fetch(`${API_BASE}/api/favorites`, { credentials: 'include' });
+    const data = await res.json();
+    if (data.length === 0) {
+      list.innerHTML = ''; empty.style.display = 'block';
+    } else {
+      empty.style.display = 'none';
+      list.innerHTML = data.map(p => `
+        <div style="display:flex;align-items:center;gap:12px;background:#f8f5f0;border-radius:10px;padding:12px;">
+          <div style="width:48px;height:48px;border-radius:8px;overflow:hidden;flex-shrink:0;background:#ddd;">
+            ${p.img ? `<img src="${p.img}" style="width:100%;height:100%;object-fit:cover;">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:20px;">📍</div>'}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;font-size:13px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.name}</div>
+            <div style="font-size:11px;color:#aaa;">${p.cat} · ★ ${p.rating}</div>
+          </div>
+          <button onclick="toggleFavorite(${p.id},this);renderFavsList()"
+            style="background:none;border:none;font-size:18px;cursor:pointer;">❤️</button>
+        </div>
+      `).join('');
+    }
+  } catch(e) { list.innerHTML = '<div style="color:#c85c3a;text-align:center;">Ошибка загрузки</div>'; }
+}
+
+async function saveProfile() {
+  const name   = document.getElementById('edit-name').value.trim();
+  const avatar = document.getElementById('edit-avatar').value.trim();
+  if (!name) { showToast('Введите имя'); return; }
+  try {
+    const res  = await fetch(`${API_BASE}/api/auth/profile`, {
+      method: 'PUT', credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, avatar })
+    });
+    const data = await res.json();
+    currentUser = data.user;
+    updateNavUser();
+    openProfileModal();
+    showToast('✓ Профиль обновлён');
+  } catch(e) { showToast('Ошибка сохранения'); }
+}
 // ===================== CATEGORIES =====================
 let selectedCatColor = '#4a7c59';
 
@@ -2188,6 +2524,7 @@ async function init() {
 
 init();
 loadCustomCategories();
+checkAuth();
 </script>
 </body>
 </html>

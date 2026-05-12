@@ -1520,9 +1520,29 @@ function saveGeoCache() {
 }
 
 // Геокодирование через Nominatim (OpenStreetMap) по адресу
+// Геокодирование через Nominatim – используем только если нет координат в БД
 async function geocodeAddress(addr, name) {
   const cacheKey = addr;
+  // Если в кеше уже есть – отдаём кеш
   if (geoCache[cacheKey]) return geoCache[cacheKey];
+
+  const query = addr + ', Красноярск, Россия';
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1&accept-language=ru`;
+    const res = await fetch(url, { headers: { 'User-Agent': 'KrasnoyarskCityGuide/1.0' } });
+    const data = await res.json();
+    if (data && data.length > 0) {
+      const coords = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+      geoCache[cacheKey] = coords;
+      saveGeoCache();
+      return coords;
+    }
+  } catch(e) {
+    console.warn('Ошибка геокодирования:', e);
+  }
+  // Вместо Math.random() возвращаем null – вызывающий код решит, что делать
+  return null;
+}
 
   // Формируем запрос — добавляем "Красноярск" для точности
   const query = addr.includes('Дивногорск') || addr.includes('Дивног')
@@ -1596,25 +1616,22 @@ async function initHomeMap() {
     attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>', maxZoom: 19
   }).addTo(homeMap);
 
-  // Показываем кешированные точки сразу
-  const cached = places.filter(p => !p.hidden && geoCache[p.addr]);
-  const withCoords = cached.map(p => ({ ...p, ...geoCache[p.addr] }));
-  addMarkersToMap(homeMap, homeMarkers, withCoords);
-
-  // Геокодируем остальные в фоне
-  const needGeo = places.filter(p => !p.hidden && !geoCache[p.addr]);
-  for (const p of needGeo) {
-    const coords = await geocodeAddress(p.addr, p.name);
-    await new Promise(r => setTimeout(r, 310));
-    const updated = { ...p, ...coords };
-    const marker = L.marker([coords.lat, coords.lng], { icon: makeLeafletIcon(CAT_COLORS[p.cat]||'#888') })
+  const visible = places.filter(p => !p.hidden);
+  for (const p of visible) {
+    let lat, lng;
+    if (p.lat != null && p.lng != null && !isNaN(p.lat) && !isNaN(p.lng)) {
+      lat = p.lat; lng = p.lng;
+    } else if (geoCache[p.addr]) {
+      lat = geoCache[p.addr].lat; lng = geoCache[p.addr].lng;
+    } else {
+      const coords = await geocodeAddress(p.addr, p.name);
+      if (coords) { lat = coords.lat; lng = coords.lng; }
+      else { lat = 56.0098; lng = 92.8521; }
+      await new Promise(r => setTimeout(r, 310));
+    }
+    const marker = L.marker([lat, lng], { icon: makeLeafletIcon(CAT_COLORS[p.cat]||'#888') })
       .addTo(homeMap)
-      .bindPopup(`<div style="font-family:'Manrope',sans-serif;min-width:175px;">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:700;color:${CAT_COLORS[p.cat]||'#888'};margin-bottom:4px;">${p.cat}</div>
-        <div style="font-weight:700;font-size:14px;margin-bottom:5px;">${p.name}</div>
-        <div style="font-size:12px;color:#888;margin-bottom:3px;">📍 ${p.addr}</div>
-        <div style="font-size:12px;color:#f5a623;font-weight:700;">★ ${p.rating}</div>
-      </div>`, { maxWidth: 230 });
+      .bindPopup(buildPopupHtml(p, CAT_COLORS[p.cat]||'#888'), { maxWidth: 230 });
     homeMarkers.push(marker);
   }
 }
@@ -1625,10 +1642,19 @@ async function homeMapFilter(f) {
   homeMarkers.length = 0;
   const filtered = places.filter(p => !p.hidden && (f === 'all' || p.cat === f));
   for (const p of filtered) {
-    const coords = geoCache[p.addr] || await geocodeAddress(p.addr, p.name);
-    await new Promise(r => setTimeout(r, 310));
+    let lat, lng;
+    if (p.lat != null && p.lng != null && !isNaN(p.lat) && !isNaN(p.lng)) {
+      lat = p.lat; lng = p.lng;
+    } else if (geoCache[p.addr]) {
+      lat = geoCache[p.addr].lat; lng = geoCache[p.addr].lng;
+    } else {
+      const coords = await geocodeAddress(p.addr, p.name);
+      if (coords) { lat = coords.lat; lng = coords.lng; }
+      else { lat = 56.0098; lng = 92.8521; }
+      await new Promise(r => setTimeout(r, 310));
+    }
     const color = CAT_COLORS[p.cat] || '#888';
-    const marker = L.marker([coords.lat, coords.lng], { icon: makeLeafletIcon(color) })
+    const marker = L.marker([lat, lng], { icon: makeLeafletIcon(color) })
       .addTo(homeMap)
       .bindPopup(`<div style="font-family:'Manrope',sans-serif;min-width:175px;">
         <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:700;color:${color};margin-bottom:4px;">${p.cat}</div>
@@ -1669,6 +1695,52 @@ async function geocodeAndRender(filter) {
   geocodingInProgress = true;
 
   const toShow = places.filter(p => !p.hidden && (filter === 'all' || p.cat === filter));
+
+  fullMarkers.forEach(m => m.remove());
+  fullMarkers.length = 0;
+
+  let done = 0;
+  for (const p of toShow) {
+    let lat, lng;
+
+    // 1. Координаты уже есть в самом объекте места (из базы или админки)
+    if (p.lat != null && p.lng != null && !isNaN(p.lat) && !isNaN(p.lng)) {
+      lat = p.lat;
+      lng = p.lng;
+    } 
+    // 2. Ищем в кеше геокодера
+    else if (geoCache[p.addr]) {
+      lat = geoCache[p.addr].lat;
+      lng = geoCache[p.addr].lng;
+    } 
+    // 3. Пытаемся получить через Nominatim
+    else {
+      const coords = await geocodeAddress(p.addr, p.name);
+      if (coords) {
+        lat = coords.lat;
+        lng = coords.lng;
+      }
+      await new Promise(r => setTimeout(r, 310));
+    }
+
+    // Если координаты так и не нашлись – ставим метку в центр города (а не случайную)
+    if (lat == null || lng == null) {
+      lat = 56.0098;
+      lng = 92.8521;
+    }
+
+    const color = CAT_COLORS[p.cat] || '#888';
+    const marker = L.marker([lat, lng], { icon: makeLeafletIcon(color) })
+      .addTo(fullMap)
+      .bindPopup(buildPopupHtml(p, color), { maxWidth: 240 });
+    fullMarkers.push(marker);
+    done++;
+    showMapStatus(`Загружаем места... ${done}/${toShow.length}`);
+  }
+
+  geocodingInProgress = false;
+  hideMapStatus();
+}
 
   // Сразу показываем кешированные
   fullMarkers.forEach(m => m.remove());

@@ -1567,13 +1567,12 @@ async function geocodeAllPlaces(placesList) {
 }
 
 function makeLeafletIcon(color) {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36">
+  // Добавляем display:block, чтобы убрать лишние пиксели снизу, которые дают смещение
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36" style="display: block;">
     <ellipse cx="14" cy="34" rx="6" ry="2" fill="rgba(0,0,0,0.25)"/>
     <path d="M14 2 C7.4 2 2 7.4 2 14 C2 22 14 34 14 34 C14 34 26 22 26 14 C26 7.4 20.6 2 14 2Z" fill="${color}" stroke="white" stroke-width="2.5"/>
     <circle cx="14" cy="14" r="5" fill="white" opacity="0.55"/>
   </svg>`;
-  return L.divIcon({ html: svg, className: '', iconSize: [28,36], iconAnchor: [14,36], popupAnchor: [0,-38] });
-}
 
 function addMarkersToMap(map, markersArr, placesList) {
   markersArr.forEach(m => m.remove());

@@ -798,7 +798,7 @@ footer {
     </div>
     <div class="footer-bottom">
       <div class="footer-copy">
-        <span class="footer-year">2025</span>
+        <span class="footer-year">2026</span>
         <span>Krasnoyarsk City Guide. Все права защищены.</span>
       </div>
       <div class="footer-socials">
@@ -891,7 +891,7 @@ footer {
       <label class="admin-login-label">Пароль</label>
       <input type="password" class="admin-login-input" id="admin-pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doAdminLogin()">
       <button class="admin-login-btn" onclick="doAdminLogin()">Войти</button>
-      <div class="admin-login-hint">Пароль по умолчанию: <span>admin123</span></div>
+      <div class="admin-login-hint">Пароль по умолчанию: <span>admin453</span></div>
     </div>
   </div>
 </div>
@@ -1186,7 +1186,7 @@ function showAdminLogin() {
 
 function doAdminLogin() {
   const pw = document.getElementById('admin-pw-input').value;
-  if (pw === 'admin123') {
+  if (pw === 'admin453') {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('main-nav').style.display = 'none';
     document.getElementById('admin-panel').style.display = 'block';
@@ -1269,7 +1269,34 @@ function doHeroSearch() {
     renderCatalog();
   }
 }
-
+function openPlaceOnMap(id) {
+  const p = places.find(pp => pp.id === id);
+  if (!p) return;
+  currentMapFilter = 'all';
+  showPage('map');
+  setTimeout(async () => {
+    await initFullMap();
+    let lat = p.lat;
+    let lng = p.lng;
+    if (geoCache[p.addr]) {
+      lat = geoCache[p.addr].lat;
+      lng = geoCache[p.addr].lng;
+    }
+    if (!lat || !lng) {
+      const coords = await geocodeAddress(p.addr, p.name);
+      lat = coords.lat;
+      lng = coords.lng;
+    }
+    fullMap.setView([lat, lng], 17);
+    fullMarkers.forEach(marker => {
+      const mLat = marker.getLatLng().lat;
+      const mLng = marker.getLatLng().lng;
+      if (Math.abs(mLat - lat) < 0.001 && Math.abs(mLng - lng) < 0.001) {
+        marker.openPopup();
+      }
+    });
+  }, 600);
+}
 // ===================== CATALOG =====================
 function filterCatalog(cat) {
   currentCatalogFilter = cat;
@@ -1301,7 +1328,7 @@ function renderCatalog() {
 
 function catalogCardHTML(p) {
   const color = CAT_COLORS[p.cat] || '#888';
-  return `<div class="catalog-card">
+  return `<div class="catalog-card" onclick="openPlaceOnMap(${p.id})">
     <div class="catalog-card-img">
       ${p.img ? `<img src="${p.img}" alt="${p.name}" onerror="this.style.display='none'">` : ''}
       <div class="catalog-card-img-ph" style="${p.img?'display:none':''}">${CAT_EMOJIS[p.cat]||'📍'}</div>

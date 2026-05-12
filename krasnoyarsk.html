@@ -922,6 +922,15 @@ footer {
           <span class="admin-search-icon">🔍</span>
           <input type="text" placeholder="Поиск по названию или адресу..." id="admin-search" oninput="renderAdminTable()">
         </div>
+        <select id="admin-cat-filter" onchange="renderAdminTable()" style="padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-family:'Manrope',sans-serif;font-size:13px;background:white;cursor:pointer;outline:none;">
+  <option value="all">Все категории</option>
+  <option value="Природа">🌲 Природа</option>
+  <option value="Музеи">🏛️ Музеи</option>
+  <option value="Рестораны">🍴 Рестораны</option>
+  <option value="Отели">🏨 Отели</option>
+  <option value="Развлечения">🎭 Развлечения</option>
+  <option value="Храмы">⛪ Храмы</option>
+</select>
         <select id="admin-sort" onchange="renderAdminTable()" style="padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-family:'Manrope',sans-serif;font-size:13px;background:white;cursor:pointer;outline:none;">
   <option value="rating">По рейтингу</option>
   <option value="name">По названию</option>
@@ -931,7 +940,8 @@ footer {
           <input type="checkbox" id="show-hidden" onchange="renderAdminTable()">
           Показать скрытые
         </label>
-        <button class="btn-add" onclick="openAddModal()">+ Добавить место</button>
+       <button class="btn-add" onclick="openAddModal()">+ Добавить место</button>
+<button class="btn-add" onclick="openNewCatModal()" style="background:#c8893a;">+ Новая категория</button>
       </div>
       <div class="admin-table">
         <table>
@@ -968,7 +978,37 @@ footer {
     </div>
   </div>
 </div>
-
+<!-- MODAL NEW CATEGORY -->
+<div class="modal-overlay" id="newcat-overlay" onclick="closeNewCatModal(event)">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-title">Новая категория</div>
+    <div class="modal-field">
+      <label class="modal-label">Название категории *</label>
+      <input type="text" class="modal-input" id="newcat-name" placeholder="Например: Спорт">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Эмодзи иконка</label>
+      <input type="text" class="modal-input" id="newcat-emoji" placeholder="🏆" maxlength="4">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Цвет</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;" id="newcat-colors">
+        <div onclick="selectCatColor(this,'#4a7c59')" style="width:32px;height:32px;border-radius:50%;background:#4a7c59;cursor:pointer;border:3px solid transparent;"></div>
+        <div onclick="selectCatColor(this,'#c8893a')" style="width:32px;height:32px;border-radius:50%;background:#c8893a;cursor:pointer;border:3px solid transparent;"></div>
+        <div onclick="selectCatColor(this,'#c85c3a')" style="width:32px;height:32px;border-radius:50%;background:#c85c3a;cursor:pointer;border:3px solid transparent;"></div>
+        <div onclick="selectCatColor(this,'#3a6bc8')" style="width:32px;height:32px;border-radius:50%;background:#3a6bc8;cursor:pointer;border:3px solid transparent;"></div>
+        <div onclick="selectCatColor(this,'#8b3ac8')" style="width:32px;height:32px;border-radius:50%;background:#8b3ac8;cursor:pointer;border:3px solid transparent;"></div>
+        <div onclick="selectCatColor(this,'#c83a7a')" style="width:32px;height:32px;border-radius:50%;background:#c83a7a;cursor:pointer;border:3px solid transparent;"></div>
+        <div onclick="selectCatColor(this,'#3ac8c8')" style="width:32px;height:32px;border-radius:50%;background:#3ac8c8;cursor:pointer;border:3px solid transparent;"></div>
+        <div onclick="selectCatColor(this,'#1c3d2e')" style="width:32px;height:32px;border-radius:50%;background:#1c3d2e;cursor:pointer;border:3px solid transparent;"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeNewCatModal()">Отмена</button>
+      <button class="btn-save" onclick="saveNewCategory()">Создать</button>
+    </div>
+  </div>
+</div>
 <!-- MODAL -->
 <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
   <div class="modal" style="max-width:620px;">
@@ -1721,8 +1761,10 @@ function renderAdminTable() {
   const q = (document.getElementById('admin-search')?.value||'').toLowerCase();
   const showHidden = document.getElementById('show-hidden')?.checked;
   const sortVal = document.getElementById('admin-sort')?.value || 'rating';
+  const catFilter = document.getElementById('admin-cat-filter')?.value || 'all';
   let list = places;
   if (!showHidden) list = list.filter(p=>!p.hidden);
+  if (catFilter !== 'all') list = list.filter(p=>p.cat===catFilter);
   if (q) list = list.filter(p=>p.name.toLowerCase().includes(q)||p.addr.toLowerCase().includes(q));
   if (sortVal === 'rating') list = [...list].sort((a,b)=>b.rating-a.rating);
   if (sortVal === 'name') list = [...list].sort((a,b)=>a.name.localeCompare(b.name,'ru'));
@@ -2033,7 +2075,84 @@ function closeModal(event) {
   if (event && event.target !== document.getElementById('modal-overlay')) return;
   document.getElementById('modal-overlay').classList.remove('open');
 }
+// ===================== CATEGORIES =====================
+let selectedCatColor = '#4a7c59';
 
+function selectCatColor(el, color) {
+  selectedCatColor = color;
+  document.querySelectorAll('#newcat-colors div').forEach(d => d.style.border = '3px solid transparent');
+  el.style.border = '3px solid #1c3d2e';
+}
+
+function openNewCatModal() {
+  document.getElementById('newcat-overlay').classList.add('open');
+  document.getElementById('newcat-name').value = '';
+  document.getElementById('newcat-emoji').value = '';
+  selectedCatColor = '#4a7c59';
+  document.querySelectorAll('#newcat-colors div').forEach(d => d.style.border = '3px solid transparent');
+}
+
+function closeNewCatModal(event) {
+  if (event && event.target !== document.getElementById('newcat-overlay')) return;
+  document.getElementById('newcat-overlay').classList.remove('open');
+}
+
+function saveNewCategory() {
+  const name = document.getElementById('newcat-name').value.trim();
+  const emoji = document.getElementById('newcat-emoji').value.trim() || '📍';
+  if (!name) { showToast('Введите название категории'); return; }
+
+  // Добавляем в цвета
+  CAT_COLORS[name] = selectedCatColor;
+  CAT_EMOJIS[name] = emoji;
+  CAT_BADGES[name] = 'cat-badge-nature';
+
+  // Сохраняем кастомные категории в localStorage
+  const custom = JSON.parse(localStorage.getItem('custom_cats') || '[]');
+  custom.push({ name, color: selectedCatColor, emoji });
+  localStorage.setItem('custom_cats', JSON.stringify(custom));
+
+  // Добавляем в фильтр категорий
+  const select = document.getElementById('admin-cat-filter');
+  const opt = document.createElement('option');
+  opt.value = name;
+  opt.textContent = emoji + ' ' + name;
+  select.appendChild(opt);
+
+  // Добавляем в select создания места
+  const mCat = document.getElementById('m-cat');
+  const opt2 = document.createElement('option');
+  opt2.value = name;
+  opt2.textContent = name;
+  mCat.appendChild(opt2);
+
+  document.getElementById('newcat-overlay').classList.remove('open');
+  showToast('✓ Категория «' + name + '» создана');
+}
+
+// Загружаем кастомные категории при старте
+function loadCustomCategories() {
+  const custom = JSON.parse(localStorage.getItem('custom_cats') || '[]');
+  custom.forEach(c => {
+    CAT_COLORS[c.name] = c.color;
+    CAT_EMOJIS[c.name] = c.emoji;
+    CAT_BADGES[c.name] = 'cat-badge-nature';
+    const select = document.getElementById('admin-cat-filter');
+    if (select) {
+      const opt = document.createElement('option');
+      opt.value = c.name;
+      opt.textContent = c.emoji + ' ' + c.name;
+      select.appendChild(opt);
+    }
+    const mCat = document.getElementById('m-cat');
+    if (mCat) {
+      const opt2 = document.createElement('option');
+      opt2.value = c.name;
+      opt2.textContent = c.name;
+      mCat.appendChild(opt2);
+    }
+  });
+}
 // ===================== TOAST =====================
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -2068,6 +2187,7 @@ async function init() {
 }
 
 init();
+loadCustomCategories();
 </script>
 </body>
 </html>

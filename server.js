@@ -132,16 +132,51 @@ app.post('/api/auth/register', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// Вход
+// Хранилище попыток входа: email -> { count, blockedUntil, blockDuration }
+const loginAttempts = new Map();
+
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const { rows } = await pool.query('SELECT * FROM users WHERE email=$1', [email.toLowerCase()]);
-    if (rows.length === 0) return res.status(400).json({ error: 'Неверный email или пароль' });
+    const key = email.toLowerCase();
+    const now = Date.now();
+
+    // Проверяем блокировку
+    const attempt = loginAttempts.get(key) || { count: 0, blockedUntil: 0, blockDuration: 120 };
+    if (attempt.blockedUntil > now) {
+      const secsLeft = Math.ceil((attempt.blockedUntil - now) / 1000);
+      return res.status(429).json({ error: 'blocked', secondsLeft: secsLeft });
+    }
+
+    const { rows } = await pool.query('SELECT * FROM users WHERE email=$1', [key]);
+    if (rows.length === 0) {
+      // Считаем попытку
+      attempt.count += 1;
+      if (attempt.count >= 5) {
+        attempt.blockedUntil = now + attempt.blockDuration * 1000;
+        attempt.blockDuration = Math.max(60, attempt.blockDuration - 60); // каждый раз -60 сек (мин 60 сек)
+        attempt.count = 0;
+      }
+      loginAttempts.set(key, attempt);
+      const left = 5 - attempt.count;
+      return res.status(400).json({ error: 'Неверный email или пароль', attemptsLeft: left > 0 ? left : 0 });
+    }
 
     const ok = await bcrypt.compare(password, rows[0].password_hash);
-    if (!ok) return res.status(400).json({ error: 'Неверный email или пароль' });
+    if (!ok) {
+      attempt.count += 1;
+      if (attempt.count >= 5) {
+        attempt.blockedUntil = now + attempt.blockDuration * 1000;
+        attempt.blockDuration = Math.max(60, attempt.blockDuration - 60);
+        attempt.count = 0;
+      }
+      loginAttempts.set(key, attempt);
+      const left = 5 - attempt.count;
+      return res.status(400).json({ error: 'Неверный email или пароль', attemptsLeft: left > 0 ? left : 0 });
+    }
 
+    // Успешный вход — сбрасываем счётчик
+    loginAttempts.delete(key);
     req.session.userId = rows[0].id;
     const { password_hash, ...user } = rows[0];
     res.json({ user });

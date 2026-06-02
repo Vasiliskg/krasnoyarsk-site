@@ -2427,30 +2427,87 @@ function switchAuthTab(tab) {
   document.getElementById('auth-tab-register').style.color      = tab==='register' ? '#1c3d2e' : '#999';
 }
 
+let loginBlockTimer = null;
+
 async function doLogin() {
-  const email    = document.getElementById('login-email').value.trim();
-  const password = document.getElementById('login-password').value;
-  const errEl    = document.getElementById('login-error');
-  const btn      = document.getElementById('btn-do-login');
+  const email  = document.getElementById('login-email').value.trim();
+  const pass   = document.getElementById('login-password').value;
+  const errEl  = document.getElementById('login-error');
+  const btn    = document.getElementById('btn-do-login');
   errEl.style.display = 'none';
   btn.textContent = 'Входим...'; btn.disabled = true;
+
   try {
     const res  = await fetch(`${API_BASE}/api/auth/login`, {
       method: 'POST', credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password: pass })
     });
     const data = await res.json();
-    if (!res.ok) { errEl.textContent = data.error; errEl.style.display = 'block'; }
-    else {
-      currentUser = data.user;
-      updateNavUser();
-      await loadFavorites();
-      document.getElementById('auth-overlay').classList.remove('open');
-      showToast('✓ Добро пожаловать, ' + currentUser.name.split(' ')[0] + '!');
+
+    if (res.status === 429 && data.error === 'blocked') {
+      // Аккаунт заблокирован
+      startLoginBlockCountdown(data.secondsLeft, errEl, btn);
+      return;
     }
-  } catch(e) { errEl.textContent = 'Ошибка соединения'; errEl.style.display = 'block'; }
+
+    if (!res.ok) {
+      let msg = data.error || 'Неверный email или пароль';
+      if (typeof data.attemptsLeft === 'number' && data.attemptsLeft > 0) {
+        msg += '. Осталось попыток: ' + data.attemptsLeft;
+      } else if (data.attemptsLeft === 0) {
+        msg = 'Слишком много неверных попыток. Подождите...';
+      }
+      errEl.textContent = msg;
+      errEl.style.display = 'block';
+      btn.textContent = 'Войти'; btn.disabled = false;
+      return;
+    }
+
+    // Успех
+    if (loginBlockTimer) { clearInterval(loginBlockTimer); loginBlockTimer = null; }
+    currentUser = data.user;
+    updateNavUser();
+    await loadFavorites();
+    document.getElementById('auth-overlay').classList.remove('open');
+    showToast('✓ Добро пожаловать, ' + currentUser.name.split(' ')[0] + '!');
+
+  } catch(e) {
+    errEl.textContent = 'Ошибка соединения';
+    errEl.style.display = 'block';
+  }
+
   btn.textContent = 'Войти'; btn.disabled = false;
+}
+
+function startLoginBlockCountdown(seconds, errEl, btn) {
+  let remaining = seconds;
+
+  function tick() {
+    const mins = Math.floor(remaining / 60);
+    const secs = remaining % 60;
+    const timeStr = mins > 0
+      ? mins + ' мин ' + secs + ' сек'
+      : secs + ' сек';
+    errEl.innerHTML = '🔒 Слишком много неверных попыток.<br>Повторите через: <strong>' + timeStr + '</strong>';
+    errEl.style.display = 'block';
+    btn.textContent = 'Подождите ' + timeStr;
+    btn.disabled = true;
+
+    if (remaining <= 0) {
+      clearInterval(loginBlockTimer);
+      loginBlockTimer = null;
+      errEl.textContent = 'Блокировка снята. Попробуйте снова.';
+      btn.textContent = 'Войти';
+      btn.disabled = false;
+      return;
+    }
+    remaining--;
+  }
+
+  tick();
+  if (loginBlockTimer) clearInterval(loginBlockTimer);
+  loginBlockTimer = setInterval(tick, 1000);
 }
 
 async function doRegister() {

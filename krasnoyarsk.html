@@ -2489,15 +2489,16 @@ function startLoginBlockCountdown(seconds, errEl, btn) {
     const timeStr = mins > 0
       ? mins + ' мин ' + secs + ' сек'
       : secs + ' сек';
-    errEl.innerHTML = '🔒 Слишком много неверных попыток.<br>Повторите через: <strong>' + timeStr + '</strong>';
+    errEl.innerHTML = '🔒 Следующая попытка через: <strong>' + timeStr + '</strong>';
     errEl.style.display = 'block';
+    btn.textContent = 'Следующая попытка через ' + timeStr;
     btn.textContent = 'Подождите ' + timeStr;
     btn.disabled = true;
 
     if (remaining <= 0) {
       clearInterval(loginBlockTimer);
       loginBlockTimer = null;
-      errEl.textContent = 'Блокировка снята. Попробуйте снова.';
+      errEl.textContent = 'Можно попробовать снова.';
       btn.textContent = 'Войти';
       btn.disabled = false;
       return;

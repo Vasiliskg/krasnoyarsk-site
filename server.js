@@ -145,7 +145,7 @@ app.post('/api/auth/login', async (req, res) => {
     const attempt = loginAttempts.get(key) || { count: 0, blockedUntil: 0, blockDuration: 120 };
     if (attempt.blockedUntil > now) {
       const secsLeft = Math.ceil((attempt.blockedUntil - now) / 1000);
-      return res.status(429).json({ error: 'blocked', secondsLeft: secsLeft });
+      return res.status(429).json({ error: 'blocked', secondsLeft: secsLeft, message: 'Следующая попытка через' });
     }
 
     const { rows } = await pool.query('SELECT * FROM users WHERE email=$1', [key]);

@@ -1235,6 +1235,42 @@ footer {
     </div>
   </div>
 </div>
+  <!-- REVIEWS MODAL -->
+<div class="modal-overlay" id="reviews-overlay" onclick="closeReviewsModal(event)">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-title" id="reviews-place-name">Отзывы</div>
+    
+    <!-- Список отзывов -->
+    <div id="reviews-list" style="max-height:300px;overflow-y:auto;margin-bottom:20px;">
+      <div style="text-align:center;color:#aaa;padding:20px;">Загрузка...</div>
+    </div>
+
+    <!-- Форма добавления (видна только авторизованным) -->
+    <div id="review-form-container" style="display:none;">
+      <div style="border-top:1px solid var(--border);padding-top:16px;margin-top:8px;">
+        <div class="modal-label">Ваша оценка</div>
+        <select id="review-rating" class="modal-select" style="width:auto;min-width:120px;">
+          <option value="5">★★★★★ (5)</option>
+          <option value="4">★★★★☆ (4)</option>
+          <option value="3">★★★☆☆ (3)</option>
+          <option value="2">★★☆☆☆ (2)</option>
+          <option value="1">★☆☆☆☆ (1)</option>
+        </select>
+        <div class="modal-field" style="margin-top:12px;">
+          <label class="modal-label">Текст отзыва</label>
+          <textarea class="modal-textarea" id="review-text" placeholder="Поделитесь впечатлениями..."></textarea>
+        </div>
+        <div id="review-error" style="color:#c85c3a;font-size:13px;margin-bottom:8px;display:none;"></div>
+        <button class="btn-save" onclick="submitReview()">Отправить отзыв</button>
+      </div>
+    </div>
+
+    <!-- Сообщение для неавторизованных -->
+    <div id="review-login-hint" style="text-align:center;color:var(--text-muted);padding:16px;display:none;">
+      <a style="color:var(--orange);cursor:pointer;font-weight:600;" onclick="closeReviewsModal();openAuthModal();">Войдите</a>, чтобы оставить отзыв.
+    </div>
+  </div>
+</div>
 <!-- MODAL NEW CATEGORY -->
 <div class="modal-overlay" id="newcat-overlay" onclick="closeNewCatModal(event)">
   <div class="modal" style="max-width:400px;">
@@ -1826,6 +1862,11 @@ function catalogCardHTML(p) {
       <div class="catalog-card-name">${p.name}</div>
       <div class="catalog-card-desc">${p.desc}</div>
       <div class="catalog-card-addr">📍 ${p.addr}</div>
+      <div style="margin-top:10px;">
+        <button class="btn-review" onclick="event.stopPropagation();openReviewsModal(${p.id}, '${p.name.replace(/'/g, "\\'")}')">
+          💬 Отзывы
+        </button>
+      </div>
     </div>
   </div>`;
 }
@@ -2820,6 +2861,106 @@ async function saveProfile() {
     showToast('✓ Профиль обновлён');
   } catch(e) { showToast('Ошибка сохранения'); }
 }
+// ===================== REVIEWS =====================
+let currentReviewsPlaceId = null;
+let currentReviewsPlaceName = '';
+
+async function openReviewsModal(placeId, placeName) {
+  currentReviewsPlaceId = placeId;
+  currentReviewsPlaceName = placeName;
+  
+  document.getElementById('reviews-place-name').textContent = 'Отзывы: ' + placeName;
+  document.getElementById('reviews-overlay').classList.add('open');
+  
+  // Загружаем список отзывов
+  await loadReviews(placeId);
+  
+  // Показываем или скрываем форму
+  const formContainer = document.getElementById('review-form-container');
+  const loginHint = document.getElementById('review-login-hint');
+  if (currentUser) {
+    formContainer.style.display = 'block';
+    loginHint.style.display = 'none';
+    document.getElementById('review-text').value = '';
+    document.getElementById('review-error').style.display = 'none';
+  } else {
+    formContainer.style.display = 'none';
+    loginHint.style.display = 'block';
+  }
+}
+
+function closeReviewsModal(event) {
+  if (event && event.target !== document.getElementById('reviews-overlay')) return;
+  document.getElementById('reviews-overlay').classList.remove('open');
+  currentReviewsPlaceId = null;
+}
+
+async function loadReviews(placeId) {
+  const listEl = document.getElementById('reviews-list');
+  listEl.innerHTML = '<div style="text-align:center;color:#aaa;padding:20px;">Загрузка...</div>';
+  try {
+    const res = await fetch(`${API_BASE}/api/reviews/${placeId}`);
+    const data = await res.json();
+    if (data.length === 0) {
+      listEl.innerHTML = '<div style="text-align:center;color:#aaa;padding:20px;">Пока нет отзывов. Будьте первым!</div>';
+      return;
+    }
+    listEl.innerHTML = data.map(r => `
+      <div style="background:#f8f5f0;border-radius:10px;padding:14px;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--green-dark);color:white;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;">${r.user_name ? r.user_name[0].toUpperCase() : '?'}</div>
+          <div>
+            <div style="font-weight:700;font-size:13px;">${r.user_name || 'Пользователь'}</div>
+            <div style="font-size:11px;color:var(--text-light);">${new Date(r.created_at).toLocaleDateString('ru-RU')}</div>
+          </div>
+          <div style="margin-left:auto;color:#f5c842;font-weight:700;">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+        </div>
+        <div style="font-size:13px;color:var(--text-muted);line-height:1.6;">${r.text}</div>
+      </div>
+    `).join('');
+  } catch(e) {
+    listEl.innerHTML = '<div style="color:#c85c3a;text-align:center;">Ошибка загрузки отзывов</div>';
+  }
+}
+
+async function submitReview() {
+  if (!currentUser) {
+    document.getElementById('review-login-hint').style.display = 'block';
+    return;
+  }
+  const rating = parseInt(document.getElementById('review-rating').value);
+  const text = document.getElementById('review-text').value.trim();
+  const errEl = document.getElementById('review-error');
+  
+  if (!text) {
+    errEl.textContent = 'Введите текст отзыва';
+    errEl.style.display = 'block';
+    return;
+  }
+  
+  try {
+    const res = await fetch(`${API_BASE}/api/reviews/${currentReviewsPlaceId}`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rating, text })
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || 'Ошибка');
+    }
+    // Очистить форму и перезагрузить список
+    document.getElementById('review-text').value = '';
+    document.getElementById('review-rating').value = '5';
+    errEl.style.display = 'none';
+    await loadReviews(currentReviewsPlaceId);
+    showToast('✓ Отзыв добавлен');
+  } catch(e) {
+    errEl.textContent = e.message || 'Ошибка отправки';
+    errEl.style.display = 'block';
+  }
+}
+  
 // ===================== CATEGORIES =====================
 let selectedCatColor = '#4a7c59';
 

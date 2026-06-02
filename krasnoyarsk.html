@@ -307,7 +307,7 @@ nav {
   transition: background .2s;
 }
 .btn-primary:hover { background: #2d5040; }
-.about-img-wrap { position: relative; }
+.about-img-wrap { position: relative; padding-bottom: 40px; }
 .about-img {
   width: 100%; border-radius: 16px;
   height: 380px; object-fit: cover;
@@ -875,10 +875,30 @@ footer {
         <div class="about-img">
           <img src="https://images.unsplash.com/photo-1500916434205-0c77489c6cf7?w=600&q=80" alt="Красноярск">
         </div>
-        <div class="about-badge">
-          +19°C
-          <div class="about-badge-sub">Средняя температура лета</div>
+        <!-- WEATHER WIDGET -->
+<div id="weather-widget" style="position:absolute;bottom:-20px;right:-20px;background:white;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.15);overflow:hidden;width:300px;font-family:'Manrope',sans-serif;">
+  <div id="weather-scene" style="height:130px;position:relative;overflow:hidden;background:#87ceeb;">
+    <canvas id="weather-canvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+    <div style="position:relative;z-index:2;padding:14px 16px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.8);margin-bottom:4px;">Красноярск сейчас</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div id="w-icon" style="font-size:40px;line-height:1;"></div>
+        <div>
+          <div id="w-temp" style="font-family:'Unbounded',sans-serif;font-size:32px;font-weight:900;color:white;text-shadow:0 2px 8px rgba(0,0,0,0.2);"></div>
+          <div id="w-desc" style="font-size:12px;color:rgba(255,255,255,0.9);font-weight:600;margin-top:2px;"></div>
         </div>
+        <div style="margin-left:auto;text-align:right;">
+          <div id="w-wind" style="font-size:11px;color:rgba(255,255,255,0.85);margin-bottom:2px;"></div>
+          <div id="w-humid" style="font-size:11px;color:rgba(255,255,255,0.85);"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="padding:10px 12px 12px;">
+    <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#aaa;margin-bottom:8px;">Прогноз на неделю</div>
+    <div id="w-forecast" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;"></div>
+  </div>
+</div>
       </div>
     </div>
   </div>
@@ -1489,6 +1509,189 @@ function exitAdmin() {
 }
 
 // ===================== HOME =====================
+  // ===================== WEATHER =====================
+const WMO_CODES = {
+  0:  { label:'Ясно',            icon:'☀️', bg:['#FFD700','#FFA500'], type:'sun' },
+  1:  { label:'Малооблачно',     icon:'🌤️', bg:['#87CEEB','#5BA3C9'], type:'sun' },
+  2:  { label:'Переменная облачность', icon:'⛅', bg:['#7EB8D4','#4A90A4'], type:'cloud' },
+  3:  { label:'Пасмурно',        icon:'☁️', bg:['#8FA8B8','#6B8C9E'], type:'cloud' },
+  45: { label:'Туман',           icon:'🌫️', bg:['#B0BEC5','#90A4AE'], type:'cloud' },
+  51: { label:'Морось',          icon:'🌦️', bg:['#607D8B','#455A64'], type:'rain' },
+  61: { label:'Небольшой дождь', icon:'🌧️', bg:['#546E7A','#37474F'], type:'rain' },
+  63: { label:'Дождь',           icon:'🌧️', bg:['#455A64','#263238'], type:'rain' },
+  65: { label:'Сильный дождь',   icon:'⛈️', bg:['#37474F','#1C2A2F'], type:'storm' },
+  71: { label:'Небольшой снег',  icon:'🌨️', bg:['#B0C4DE','#8BA7C7'], type:'snow' },
+  73: { label:'Снег',            icon:'❄️', bg:['#9BB4CF','#7A9BBF'], type:'snow' },
+  75: { label:'Сильный снег',    icon:'❄️', bg:['#8AA8C4','#6B90B5'], type:'snow' },
+  80: { label:'Ливень',          icon:'🌧️', bg:['#455A64','#263238'], type:'rain' },
+  95: { label:'Гроза',           icon:'⛈️', bg:['#263238','#102027'], type:'storm' },
+};
+const DAYS_RU = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+let weatherParticles = [];
+let weatherAnimFrame = null;
+
+function getWeatherInfo(code) {
+  return WMO_CODES[code] || { label:'Переменная облачность', icon:'⛅', bg:['#7EB8D4','#4A90A4'], type:'cloud' };
+}
+
+async function loadWeather() {
+  try {
+    const url = 'https://api.open-meteo.com/v1/forecast?latitude=56.0090&longitude=92.8521' +
+      '&current=temperature_2m,weathercode,windspeed_10m,relativehumidity_2m' +
+      '&daily=weathercode,temperature_2m_max,temperature_2m_min' +
+      '&timezone=Asia%2FKrasnoyarsk&forecast_days=7';
+    const res  = await fetch(url);
+    const data = await res.json();
+    renderWeather(data);
+  } catch(e) {
+    const el = document.getElementById('weather-widget');
+    if (el) el.style.display = 'none';
+  }
+}
+
+function renderWeather(data) {
+  const cur   = data.current;
+  const daily = data.daily;
+  const info  = getWeatherInfo(cur.weathercode);
+  const temp  = Math.round(cur.temperature_2m);
+
+  const scene = document.getElementById('weather-scene');
+  if (scene) scene.style.background = `linear-gradient(135deg, ${info.bg[0]}, ${info.bg[1]})`;
+
+  const wi = document.getElementById('w-icon');
+  const wt = document.getElementById('w-temp');
+  const wd = document.getElementById('w-desc');
+  const ww = document.getElementById('w-wind');
+  const wh = document.getElementById('w-humid');
+  if (wi) wi.textContent = info.icon;
+  if (wt) wt.textContent = (temp > 0 ? '+' : '') + temp + '°C';
+  if (wd) wd.textContent = info.label;
+  if (ww) ww.textContent = '💨 ' + Math.round(cur.windspeed_10m) + ' км/ч';
+  if (wh) wh.textContent = '💧 ' + cur.relativehumidity_2m + '%';
+
+  startWeatherAnimation(info.type);
+
+  const fc = document.getElementById('w-forecast');
+  if (fc && daily) {
+    fc.innerHTML = daily.time.map((dateStr, i) => {
+      const d    = new Date(dateStr);
+      const day  = DAYS_RU[d.getDay()];
+      const fi   = getWeatherInfo(daily.weathercode[i]);
+      const tmax = Math.round(daily.temperature_2m_max[i]);
+      const tmin = Math.round(daily.temperature_2m_min[i]);
+      const isToday = i === 0;
+      return `<div style="text-align:center;padding:4px 2px;border-radius:8px;background:${isToday?'#f0ece5':'transparent'};">
+        <div style="font-size:9px;font-weight:700;color:${isToday?'#1c3d2e':'#aaa'};text-transform:uppercase;">${isToday?'Сег':day}</div>
+        <div style="font-size:16px;margin:2px 0;">${fi.icon}</div>
+        <div style="font-size:10px;font-weight:700;color:#333;">${tmax>0?'+':''}${tmax}°</div>
+        <div style="font-size:9px;color:#aaa;">${tmin>0?'+':''}${tmin}°</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+function startWeatherAnimation(type) {
+  if (weatherAnimFrame) cancelAnimationFrame(weatherAnimFrame);
+  weatherParticles = [];
+  const canvas = document.getElementById('weather-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width  = canvas.offsetWidth  || 300;
+  canvas.height = canvas.offsetHeight || 130;
+
+  if (type === 'sun')   { animateSun(ctx, canvas);    return; }
+  if (type === 'cloud') { animateClouds(ctx, canvas); return; }
+
+  const count = type === 'storm' ? 120 : type === 'rain' ? 80 : 60;
+  for (let i = 0; i < count; i++) weatherParticles.push(makeParticle(type, canvas));
+
+  function loop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    weatherParticles.forEach(p => { updateParticle(p, type, canvas); drawParticle(ctx, p, type); });
+    weatherAnimFrame = requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+function makeParticle(type, canvas) {
+  const w = canvas.width, h = canvas.height;
+  if (type === 'rain' || type === 'storm') {
+    return { x: Math.random()*w, y: Math.random()*h - h, speed: 4+Math.random()*6, len: 8+Math.random()*10, width: 0.5+Math.random(), angle: 0.2, alpha: 0.4+Math.random()*0.5 };
+  }
+  return { x: Math.random()*w, y: Math.random()*h, speed: 0.5+Math.random()*1.5, size: 2+Math.random()*4, drift: (Math.random()-0.5)*0.5, alpha: 0.6+Math.random()*0.4, angle: 0 };
+}
+
+function updateParticle(p, type, canvas) {
+  const w = canvas.width, h = canvas.height;
+  if (type === 'rain' || type === 'storm') {
+    p.x += p.speed * Math.sin(p.angle); p.y += p.speed;
+    if (p.y > h) { p.y = -p.len; p.x = Math.random()*w; }
+  } else {
+    p.y += p.speed; p.x += p.drift; p.angle += 0.02;
+    if (p.y > h) { p.y = -p.size; p.x = Math.random()*w; }
+    if (p.x > w) p.x = 0; if (p.x < 0) p.x = w;
+  }
+}
+
+function drawParticle(ctx, p, type) {
+  ctx.save(); ctx.globalAlpha = p.alpha;
+  if (type === 'rain' || type === 'storm') {
+    ctx.strokeStyle = type === 'storm' ? 'rgba(180,220,255,0.8)' : 'rgba(160,210,255,0.7)';
+    ctx.lineWidth = p.width;
+    ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - p.len*Math.sin(p.angle), p.y - p.len); ctx.stroke();
+  } else {
+    ctx.translate(p.x, p.y); ctx.rotate(p.angle);
+    for (let i = 0; i < 6; i++) {
+      ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,-p.size);
+      ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = 0.8; ctx.stroke();
+      ctx.rotate(Math.PI/3);
+    }
+    ctx.beginPath(); ctx.arc(0,0,p.size*0.3,0,Math.PI*2);
+    ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.fill();
+  }
+  ctx.restore();
+}
+
+function animateSun(ctx, canvas) {
+  const w = canvas.width, h = canvas.height;
+  let angle = 0;
+  function loop() {
+    ctx.clearRect(0,0,w,h);
+    const cx = w*0.75, cy = h*0.4, r = 28;
+    angle += 0.005;
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(angle);
+    for (let i = 0; i < 12; i++) {
+      ctx.beginPath(); ctx.moveTo(0,r+4); ctx.lineTo(0,r+14);
+      ctx.strokeStyle='rgba(255,220,50,0.6)'; ctx.lineWidth=2; ctx.stroke();
+      ctx.rotate(Math.PI/6);
+    }
+    ctx.restore();
+    const g = ctx.createRadialGradient(cx,cy,0,cx,cy,r);
+    g.addColorStop(0,'rgba(255,255,180,1)'); g.addColorStop(1,'rgba(255,200,50,0.9)');
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
+    ctx.beginPath(); ctx.arc(cx-8,cy-8,8,0,Math.PI*2); ctx.fillStyle='rgba(255,255,255,0.25)'; ctx.fill();
+    weatherAnimFrame = requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+function animateClouds(ctx, canvas) {
+  const w = canvas.width, h = canvas.height;
+  const clouds = [{x:60,y:35,s:1.2,spd:0.15},{x:200,y:20,s:0.8,spd:0.10},{x:160,y:55,s:1.0,spd:0.12}];
+  function drawCloud(cx,cy,s) {
+    ctx.save(); ctx.translate(cx,cy); ctx.scale(s,s);
+    ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.beginPath();
+    ctx.arc(0,0,20,0,Math.PI*2); ctx.arc(22,-5,25,0,Math.PI*2);
+    ctx.arc(45,0,18,0,Math.PI*2); ctx.arc(22,10,20,0,Math.PI*2); ctx.fill(); ctx.restore();
+  }
+  function loop() {
+    ctx.clearRect(0,0,w,h);
+    clouds.forEach(c => { c.x += c.spd; if(c.x>w+80) c.x=-80; drawCloud(c.x,c.y,c.s); });
+    weatherAnimFrame = requestAnimationFrame(loop);
+  }
+  loop();
+}
+// ===================== WEATHER END =====================
 function renderHome() {
   renderPopular();
   renderReviews();
@@ -2729,6 +2932,7 @@ async function init() {
   // Инициализируем сайт
   renderHome();
   setTimeout(() => initHomeMap(), 300);
+  loadWeather();
 }
 
 init();

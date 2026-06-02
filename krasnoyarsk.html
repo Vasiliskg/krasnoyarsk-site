@@ -907,7 +907,7 @@ footer {
         <div style="font-size:28px;color:var(--orange);font-weight:900;line-height:0.8;margin-bottom:12px;">"</div>
         <div class="section-title">Что говорят путешественники</div>
       </div>
-      <button style="width:40px;height:40px;border-radius:50%;background:var(--green-dark);border:none;color:white;font-size:16px;cursor:pointer;">→</button>
+      <button id="reviews-scroll-btn" onclick="scrollReviews()" style="width:40px;height:40px;border-radius:50%;background:var(--green-dark);border:none;color:white;font-size:16px;cursor:pointer;">→</button>
     </div>
     <div class="reviews-track" id="reviews-track"></div>
   </div>
@@ -1781,6 +1781,18 @@ function renderReviews() {
   `).join('');
 }
 
+function scrollReviews() {
+  const track = document.getElementById('reviews-track');
+  if (!track) return;
+  const scrollAmount = 300; // ширина одной карточки + отступ
+  // Если прокрутили до конца – возвращаемся в начало
+  if (track.scrollLeft + track.clientWidth >= track.scrollWidth - 10) {
+    track.scrollTo({ left: 0, behavior: 'smooth' });
+  } else {
+    track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+  }
+}
+  
 function doHeroSearch() {
   const q = document.getElementById('hero-search-input').value.trim();
   if (q) {
